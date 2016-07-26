@@ -92,9 +92,9 @@ class Network
 {
 public:
 	Network(const std::vector<unsigned> & parTolopologie);
-	void feedForward(const std::vector<double> & parInputValues);
-	void backProp(const std::vector<double> & parTargetValues);
-	void getResults(std::vector<double> & parResultValues) const;
+	void feedForward(const t_val & parInputValues);
+	void backProp(const t_val & parTargetValues);
+	void getResults(t_val & parResultValues) const;
 	
 	double getErreur(void) const { return error_; }
 	double getErreurMoyenne(void) const { return derniereMoyenneErreur_; }

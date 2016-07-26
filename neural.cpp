@@ -301,7 +301,7 @@ Network::Network(const std::vector<unsigned> & parTolopologie)
  *  propagation vers les couches supérieur du reseau
  *  @param parInputValues ref du tableaus des entrees
  */
-void Network::feedForward(const std::vector<double> & parInputValues)
+void Network::feedForward(const t_val & parInputValues)
 {
 	assert(parInputValues.size() == layers_[0].size() -1);
 	//on assigne les valeurs d'éntree aux neurones d'entree
@@ -323,7 +323,7 @@ void Network::feedForward(const std::vector<double> & parInputValues)
  *  "back propagation", on calcul les erreurs, les gradients et on update les poids
  *  @param parTargetValues ref vers le tableau des targets
  */
-void Network::backProp(const std::vector<double> &parTargetValues)
+void Network::backProp(const t_val &parTargetValues)
 {
 	//calculer l'erreur du réseau avec la RMS (Root Mean Square Error)
 	Layer &outputLayer = layers_.back();
@@ -371,7 +371,7 @@ void Network::backProp(const std::vector<double> &parTargetValues)
  *  récupération des résultats
  *  @param parResultValues ref tableau de resultat
  */
-void Network::getResults(std::vector<double> & parResultValues) const
+void Network::getResults(t_val & parResultValues) const
 {
 	parResultValues.clear();
 	
