@@ -28,7 +28,7 @@ typedef std::vector<Connection> Connections;
 /// Constantes
 const double	TAUX_ENTRAINEMENT =	0.1;
 const double	MOMENTUM =			0.1;
-const int		NB_MESURE =			5;
+const int	NB_MESURE =			10;
 const double	LAMBDA  =			1.5;
 const double	ERREUR =			0.01;
 

@@ -68,7 +68,7 @@ int main()
 	std::cout << std::endl << "Done" << std::endl;
 	
 	std::vector<double> predictValInput;
-	predictValInput.push_back(0.0);
+	predictValInput.push_back(1.0);
 	predictValInput.push_back(1.0);
 	std::vector<double> predictValResult = myNet.predict(predictValInput);
 	for (unsigned i = 0; i < predictValResult.size() -1; ++i) {
