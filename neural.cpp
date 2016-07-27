@@ -207,6 +207,12 @@ void Neurone::updateInputsPoids(Layer & parPrevLayer)
 }
 
 //--------------------------------------
+void Neurone::getConnectionsValues(Connections & parConnections) const
+{
+	parConnections = outputPoids_;
+}
+
+//--------------------------------------
 /**
  *  fonction de transfert
  *  @param parSum valeur de la somme
@@ -259,20 +265,20 @@ int Network::nombreMesure_ = NB_MESURE;
 /**
  *  Constructeur du reseau
  */
-Network::Network(const std::vector<unsigned> & parTolopologie)
+Network::Network(const std::vector<unsigned> & parTopologie)
 {
 	error_ = 0.0;
 	derniereMoyenneErreur_ = 0.0;
-	assert(!parTolopologie.empty());
-	nbLayers = parTolopologie.size();
+	assert(!parTopologie.empty());
+	nbLayers = parTopologie.size();
 	
-	for (unsigned i = 0; i < parTolopologie.size(); ++i) {
-		unsigned nbNeurone = parTolopologie[i];
+	for (unsigned i = 0; i < parTopologie.size(); ++i) {
+		unsigned nbNeurone = parTopologie[i];
 		assert(nbNeurone > 0);
 		layers_.push_back(Layer());
 		Layer &newLayer = layers_.back();
-		bool isLastLayer = (i == (parTolopologie.size() - 1));
-		unsigned nbOutput = (isLastLayer)? 0 : parTolopologie[i + 1];
+		bool isLastLayer = (i == (parTopologie.size() - 1));
+		unsigned nbOutput = (isLastLayer)? 0 : parTopologie[i + 1];
 		
 		for (unsigned j = 0; j < (nbNeurone + 1); ++j) {
 			newLayer.push_back(Neurone(nbOutput, j));
@@ -284,11 +290,11 @@ Network::Network(const std::vector<unsigned> & parTolopologie)
 	
 	//	for (auto numLayers = 0; numLayers < nbLayers; ++numLayers) {
 	//		layers_.push_back(Layer());
-	//		unsigned nbOutput = (numLayers == parTolopologie.size() - 1)?
+	//		unsigned nbOutput = (numLayers == parTopologie.size() - 1)?
 	//		0:
-	//		parTolopologie[numLayers + 1];
+	//		parTopologie[numLayers + 1];
 	//		//on ajoute les neurones le le "bias" neurone --> <=
-	//		for (auto numNeuron = 0; numNeuron <= parTolopologie[numLayers]; ++numNeuron) {
+	//		for (auto numNeuron = 0; numNeuron <= parTopologie[numLayers]; ++numNeuron) {
 	//			layers_.back().push_back(Neurone(nbOutput,numNeuron));
 	//			std::cout << "Ajout du neurone : " << numNeuron << " a la couche : " << numLayers <<  std::endl;
 	//		}
@@ -393,3 +399,41 @@ t_val Network::predict(t_val & parVal)
 	getResults(resultat);
 	return resultat;
 }
+
+//--------------------------------------
+void Network::printNeuroneConnectionsPoids() const
+{
+	Connections Cons;
+	for (unsigned i = 0; i < layers_.size() - 1; ++i) {
+		for (unsigned j = 0; j < layers_[i].size(); ++j) {
+			std::cout << "Neurone [" << i << "][" << j << "]" <<std::endl;
+			Neurone Neur = layers_[i][j];
+			Neur.getConnectionsValues(Cons);
+			for (unsigned n = 0; n < Cons.size() ; ++n) {
+				std::cout << "-> [" << i + 1 << "][" << n << "]:(" << Cons[n].poids_ << ")" << std::endl;
+			}
+		}
+	}
+}
+
+//--------------------------------------
+void Network::getNetworkTopologie(Topologie &parTopologie) const
+{
+	parTopologie = layers_;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

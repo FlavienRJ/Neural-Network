@@ -2,8 +2,47 @@
 ///Inclusion
 #include "neural.h"
 
+//--------------------------------------
 //TODO
-//
+//-commenter le code
+//-algorithme d'evolution genetique
+
+//DONE
+//+Fonction d'affichage des tableau
+//+Fonction d'affichage de la matrice de connections
+//+fonction d'entree de prediction
+
+//--------------------------------------
+/**
+ *  afficher le contenu d'un Vector
+ *
+ *  @param parVec  le vector à afficher
+ *  @param parText le texte (optionnel)
+ */
+void printVector(const std::vector<double> & parVec, const std::string parText = "")
+{
+	std::cout << parText << std::endl;
+	for (unsigned i = 0; i < parVec.size(); ++i) {
+		std::cout << parVec[i] << " ";
+	}
+	std::cout << std::endl;
+}
+
+//--------------------------------------
+void requestPredict(t_val & parPredictValInput, t_val & parPredictValResult, Network & parNet)
+{
+	double val;
+	Topologie top;
+	parNet.getNetworkTopologie(top);
+	top[0].pop_back();
+	while (parPredictValInput.empty() or (parPredictValInput.size() < top[0].size())) {
+		std::cout << "Entrer une valeur : " << std::endl;
+		std::cin >> val;
+		if(std::isdigit(val)==0)
+			parPredictValInput.push_back(val);
+	}
+	parPredictValResult=parNet.predict(parPredictValInput);
+}
 
 //--------------------------------------
 /**
@@ -26,6 +65,8 @@ int main()
 	t_val resultVals;
 	int numTraining = 0;
 	
+	//myNet.printNeuroneConnectionsPoids();
+	
 	while (!trainingData.isEOF()) {
 		++numTraining;
 		std::cout << "passe n° : " << numTraining << std::endl;
@@ -33,27 +74,19 @@ int main()
 		if (trainingData.getNextInputs(inputVals) != topologie[0])
 			break;
 		
-		std::cout << "inputs: ";
-		for (unsigned i = 0; i < inputVals.size(); ++i) {
-			std::cout << inputVals[i] << " ";
-		}
-		std::cout << std::endl;
+		//printVector(inputVals,"inputs: ");
 		
 		myNet.feedForward(inputVals);
 		
 		myNet.getResults(resultVals);
-		std::cout << "outputs: ";
-		for (unsigned i = 0; i < resultVals.size() - 1; ++i) {
-			std::cout << resultVals[i] << " ";
-		}
-		std::cout << std::endl;
+		
+		resultVals.pop_back();
+		//printVector(resultVals,"outputs: ");
 		
 		trainingData.getTargetOutputs(targetVals);
-		std::cout << "targets: ";
-		for (unsigned i = 0; i < targetVals.size(); ++i) {
-			std::cout << targetVals[i] << " ";
-		}
-		std::cout << std::endl;
+		
+		//printVector(targetVals,"targets: ");
+		
 		assert(targetVals.size() == topologie.back());
 		
 		myNet.backProp(targetVals);
@@ -65,16 +98,17 @@ int main()
 			break;
 		
 	}
+	myNet.printNeuroneConnectionsPoids();
 	std::cout << std::endl << "Done" << std::endl;
 	
 	std::vector<double> predictValInput;
 	predictValInput.push_back(1.0);
-	predictValInput.push_back(1.0);
-	std::vector<double> predictValResult = myNet.predict(predictValInput);
-	for (unsigned i = 0; i < predictValResult.size() -1; ++i) {
-		std::cout << predictValResult[i];
-	}
-	std::cout << std::endl;
+	predictValInput.push_back(0.0);
+	std::vector<double> predictValResult;
+	requestPredict(predictValInput, predictValResult, myNet);
+	predictValResult.pop_back();
+	printVector(predictValResult);
+	
 	std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
 	auto duree = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
 	std::cout << "temps d'execution : " << duree << " ms" << std::endl;

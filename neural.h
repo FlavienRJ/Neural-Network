@@ -1,5 +1,6 @@
-#ifndef NEURAL_H
-#define NEURAL_H
+#pragma once
+//#ifndef NEURAL_H
+//#define NEURAL_H
 
 //--------------------------------------
 ///Inclusion
@@ -23,6 +24,7 @@ class TrainData;
 typedef std::vector<Neurone> Layer;
 typedef std::vector<double> t_val;
 typedef std::vector<Connection> Connections;
+typedef std::vector<Layer> Topologie;
 
 //--------------------------------------
 /// Constantes
@@ -72,6 +74,7 @@ public:
 	void calcOutputGradients(double parTargetVal);
 	void calcHiddenGradients(const Layer & parNextLayer);
 	void updateInputsPoids(Layer & parPrevLayer);
+	void getConnectionsValues(Connections & parConnections) const;
 	
 private:
 	static double fctTransfert(double parSum);
@@ -91,7 +94,7 @@ private:
 class Network
 {
 public:
-	Network(const std::vector<unsigned> & parTolopologie);
+	Network(const std::vector<unsigned> & parTopologie);
 	void feedForward(const t_val & parInputValues);
 	void backProp(const t_val & parTargetValues);
 	void getResults(t_val & parResultValues) const;
@@ -100,13 +103,16 @@ public:
 	double getErreurMoyenne(void) const { return derniereMoyenneErreur_; }
 	
 	t_val predict(t_val & parVal);
+	void printNeuroneConnectionsPoids(void) const;
+	void getNetworkTopologie(Topologie & parTopologie) const;
 	
 private:
-	std::vector<Layer> layers_;	//layers_[nbLayer][nbNeurone]
+	//layers_[nbLayer][nbNeurone]
+	Topologie layers_;
 	unsigned long nbLayers;
 	double error_;
 	double derniereMoyenneErreur_;
 	static int nombreMesure_;
 	
 };
-#endif
+//#endif
