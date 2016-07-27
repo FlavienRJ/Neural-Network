@@ -52,7 +52,7 @@ void requestPredict(t_val & parPredictValInput, t_val & parPredictValResult, Net
 int main()
 {
 	srand(static_cast<unsigned>(time(NULL)));
-	std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
+	//std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
 	
 	TrainData trainingData("data.txt");
 	std::vector<unsigned> topologie;
@@ -69,7 +69,7 @@ int main()
 	
 	while (!trainingData.isEOF()) {
 		++numTraining;
-		std::cout << "passe n° : " << numTraining << std::endl;
+		//std::cout << "passe n° : " << numTraining << std::endl;
 		
 		if (trainingData.getNextInputs(inputVals) != topologie[0])
 			break;
@@ -91,15 +91,15 @@ int main()
 		
 		myNet.backProp(targetVals);
 		
-		std::cout << "Erreur actuelle du reseau : " << std::setprecision(2) << myNet.getErreur() << std::endl;
-		std::cout << "Moyenne d'erreur : " << myNet.getErreurMoyenne() << std::endl;
+//		std::cout << "Erreur actuelle du reseau : " << std::setprecision(2) << myNet.getErreur() << std::endl;
+//		std::cout << "Moyenne d'erreur : " << myNet.getErreurMoyenne() << std::endl;
 		
 		if ( numTraining > 100 && myNet.getErreurMoyenne() < ERREUR )
 			break;
 		
 	}
 	myNet.printNeuroneConnectionsPoids();
-	std::cout << std::endl << "Done" << std::endl;
+	//std::cout << std::endl << "Done" << std::endl;
 	
 	std::vector<double> predictValInput;
 	predictValInput.push_back(1.0);
@@ -107,11 +107,11 @@ int main()
 	std::vector<double> predictValResult;
 	requestPredict(predictValInput, predictValResult, myNet);
 	predictValResult.pop_back();
-	printVector(predictValResult);
+	//printVector(predictValResult);
 	
-	std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
-	auto duree = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
-	std::cout << "temps d'execution : " << duree << " ms" << std::endl;
+	//std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
+	//auto duree = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
+	//std::cout << "temps d'execution : " << duree << " ms" << std::endl;
 	
     return 0;
 }
