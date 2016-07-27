@@ -191,7 +191,6 @@ void Neurone::calcHiddenGradients(const Layer &parNextLayer)
 //--------------------------------------
 /**
  *  mise à jour des poids
- *
  *  @param parPrevLayer ref sur la couche d'avant
  */
 void Neurone::updateInputsPoids(Layer & parPrevLayer)
@@ -207,6 +206,10 @@ void Neurone::updateInputsPoids(Layer & parPrevLayer)
 }
 
 //--------------------------------------
+/**
+ *  donne le tableau de connection du neurone
+ *  @param parConnections le tableau de stockage
+ */
 void Neurone::getConnectionsValues(Connections & parConnections) const
 {
 	parConnections = outputPoids_;
@@ -401,6 +404,9 @@ t_val Network::predict(t_val & parVal)
 }
 
 //--------------------------------------
+/**
+ *  affiche les poids des neurones du network
+ */
 void Network::printNeuroneConnectionsPoids() const
 {
 	Connections Cons;
@@ -417,6 +423,10 @@ void Network::printNeuroneConnectionsPoids() const
 }
 
 //--------------------------------------
+/**
+ *  renvoie la topologie du reseau
+ *  @param parTopologie le tableau qui va stocker la topologie
+ */
 void Network::getNetworkTopologie(Topologie &parTopologie) const
 {
 	parTopologie = layers_;

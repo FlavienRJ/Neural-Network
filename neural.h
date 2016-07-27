@@ -21,10 +21,10 @@ class Network;
 class Neurone;
 class Connection;
 class TrainData;
-typedef std::vector<Neurone> Layer;
-typedef std::vector<double> t_val;
-typedef std::vector<Connection> Connections;
-typedef std::vector<Layer> Topologie;
+using Layer			= std::vector<Neurone>;
+using t_val			= std::vector<double>;
+using Connections	= std::vector<Connection>;
+using Topologie		= std::vector<Layer>;
 
 //--------------------------------------
 /// Constantes

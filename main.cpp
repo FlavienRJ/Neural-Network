@@ -5,7 +5,11 @@
 //--------------------------------------
 //TODO
 //-commenter le code
-//-algorithme d'evolution genetique
+//-AJOUT algorithme d'evolution genetique
+//	->dans les genes : la topologie du réseau, les constantes eta/alpha, poids ?
+//-ajout de la sauvegarde des parametres des neurones à la fin de l'entrainement
+//-ajout d'une base de donnee dans laquelle on stock les resultats jugee bon pour encore plus augmenter le fichier de test
+//-uniformiser le formatage des fichiers de donnee
 
 //DONE
 //+Fonction d'affichage des tableau
@@ -52,7 +56,7 @@ void requestPredict(t_val & parPredictValInput, t_val & parPredictValResult, Net
 int main()
 {
 	srand(static_cast<unsigned>(time(NULL)));
-	//std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
+	std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
 	
 	TrainData trainingData("data.txt");
 	std::vector<unsigned> topologie;
@@ -102,16 +106,16 @@ int main()
 	//std::cout << std::endl << "Done" << std::endl;
 	
 	std::vector<double> predictValInput;
-	predictValInput.push_back(1.0);
-	predictValInput.push_back(0.0);
+	predictValInput.push_back(0.3);
+	predictValInput.push_back(0.5);
 	std::vector<double> predictValResult;
 	requestPredict(predictValInput, predictValResult, myNet);
 	predictValResult.pop_back();
-	//printVector(predictValResult);
+	printVector(predictValResult);
 	
-	//std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
-	//auto duree = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
-	//std::cout << "temps d'execution : " << duree << " ms" << std::endl;
+	std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
+	auto duree = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
+	std::cout << "temps d'execution : " << duree << " ms" << std::endl;
 	
     return 0;
 }
