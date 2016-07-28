@@ -13,14 +13,14 @@
 #include <sstream>
 #include <iomanip>
 #include <chrono>
-#include <cmath>
+#include <algorithm>
 
 //--------------------------------------
 /// declaration des types
-class Network;
-class Neurone;
-class Connection;
 class TrainData;
+class Connection;
+class Neurone;
+class Network;
 using Layer			= std::vector<Neurone>;
 using t_val			= std::vector<double>;
 using Connections	= std::vector<Connection>;
@@ -44,9 +44,12 @@ public:
 	void getTopologie(std::vector<unsigned> & parTopologie);
 	unsigned getNextInputs(t_val & parInputVal);
 	unsigned getTargetOutputs(t_val & parTargetOutputVals);
+	void calcNumberTrain();
+	unsigned getNumberTrain(void) const;
 	
 private:
 	std::ifstream trainingDataFile_;
+	unsigned nbLigne_;
 };
 
 //--------------------------------------
@@ -102,9 +105,11 @@ public:
 	double getErreur(void) const { return error_; }
 	double getErreurMoyenne(void) const { return derniereMoyenneErreur_; }
 	
-	t_val predict(t_val & parVal);
+	t_val predict(const t_val & parVal);
 	void printNeuroneConnectionsPoids(void) const;
 	void getNetworkTopologie(Topologie & parTopologie) const;
+	void setNbMesure(int par);
+	unsigned getNbMesure() const { return nombreMesure_;}
 	
 private:
 	//layers_[nbLayer][nbNeurone]
@@ -112,7 +117,7 @@ private:
 	unsigned long nbLayers;
 	double error_;
 	double derniereMoyenneErreur_;
-	static int nombreMesure_;
+	int nombreMesure_;
 	
 };
 //#endif

@@ -8,7 +8,8 @@
  */
 TrainData::TrainData(const std::string parFile)
 {
-	trainingDataFile_.open(parFile.c_str());
+	trainingDataFile_.open(parFile.c_str());						//ouverture du fichier d'entrainement
+	calcNumberTrain();
 }
 
 //--------------------------------------
@@ -21,16 +22,16 @@ void TrainData::getTopologie(std::vector<unsigned> &parTopologie)
 	std::string ligne;
 	std::string label;
 	
-	getline(trainingDataFile_, ligne);
-	std::stringstream ss(ligne);
-	ss >> label;
-	if (this->isEOF() || label.compare("topologie:") != 0)
-		abort();
+	getline(trainingDataFile_, ligne);								//lecture de la premiere ligne du fichier
+	std::stringstream ss(ligne);									//on stocke la ligne de le stringstream
+	ss >> label;													//on copie la 1ere chaine de char. dans label
+	if (this->isEOF() || label.compare("topologie:") != 0)			//si cette chaine n'est pas topologie ou vide
+		abort();													//on stop
 	
-	while (!ss.eof()) {
+	while (!ss.eof()) {												//tant que l'on est pas à la fin de la ligne
 		unsigned n;
-		ss >> n;
-		parTopologie.push_back(n);
+		ss >> n;													//on stocke la prochaine chaine de char.
+		parTopologie.push_back(n);									//on l'ajoute au vector de topologie
 	}
 }
 
@@ -43,7 +44,7 @@ void TrainData::getTopologie(std::vector<unsigned> &parTopologie)
 unsigned TrainData::getNextInputs(t_val &parInputVal)
 {
 	
-	parInputVal.clear();
+	parInputVal.clear();											//on vide la liste des inputs
 	
 	std::string ligne;
 	std::string label;
@@ -52,14 +53,14 @@ unsigned TrainData::getNextInputs(t_val &parInputVal)
 	std::stringstream ss(ligne);
 	ss >> label;
 	
-	if (label.compare("in:") == 0)
+	if (label.compare("in:") == 0)									//si la 1ere chaine de char. est in:
 	{
 		double val;
-		while (ss >> val) { //probleme de conversion en double avec stringstream
-			parInputVal.push_back(val);
+		while (ss >> val) {											//tant qu'il y a des valeurs dans ss
+			parInputVal.push_back(val);								//on les ajoute dans le vector d'entree
 		}
 	}
-	return static_cast<unsigned>(parInputVal.size());
+	return static_cast<unsigned>(parInputVal.size());				//on retourne le nb d'entree
 }
 
 //--------------------------------------
@@ -68,7 +69,7 @@ unsigned TrainData::getNextInputs(t_val &parInputVal)
  *  @param parTargetOutputVals tableau de targets de sortie
  *  @return le nombre de target
  */
-unsigned TrainData::getTargetOutputs(t_val &parTargetOutputVals)
+unsigned TrainData::getTargetOutputs(t_val &parTargetOutputVals)	//même principe que getNextInput
 {
 	parTargetOutputVals.clear();
 	
@@ -89,6 +90,25 @@ unsigned TrainData::getTargetOutputs(t_val &parTargetOutputVals)
 	return static_cast<unsigned>(parTargetOutputVals.size());
 }
 
+//--------------------------------------
+void TrainData::calcNumberTrain()
+{
+	std::string ligne;
+	unsigned i = 0;
+	for (i = 0; std::getline(trainingDataFile_, ligne); i++) {
+		;
+	}
+	trainingDataFile_.clear();
+	trainingDataFile_.seekg(0, std::ios::beg);
+	nbLigne_ = static_cast<unsigned>(i/3);
+}
+
+//--------------------------------------
+unsigned TrainData::getNumberTrain() const
+{
+	return nbLigne_;
+}
+
 
 
 
@@ -105,8 +125,8 @@ unsigned TrainData::getTargetOutputs(t_val &parTargetOutputVals)
  */
 Connection::Connection()
 {
-	poids_ = poidsRandom();
-	//std::cout << poids_ << " : " << std::endl;
+	poids_ = poidsRandom();											//constructeur de connection insigne
+	//std::cout << poids_ << " : " << std::endl;					//une valeur random
 }
 
 //--------------------------------------
@@ -116,7 +136,7 @@ Connection::Connection()
  */
 double Connection::poidsRandom(void)
 {
-	return rand()/(static_cast<double>(RAND_MAX) + 1.0);
+	return rand()/(static_cast<double>(RAND_MAX) + 1.0);			//renvoie une valeur random entre 0.0 et 1.0
 }
 
 
@@ -132,8 +152,8 @@ double Connection::poidsRandom(void)
 /**
  *  AJOUTER UN MECANISME D'EVOLUTION
  */
-double Neurone::ETA = TAUX_ENTRAINEMENT;		//taux d'entrainement :	O.15, meilleur 0.1
-double Neurone::ALPHA = MOMENTUM;	//momentum :			0.5,	O.1
+double Neurone::ETA = TAUX_ENTRAINEMENT;							//taux d'entrainement :	O.15, meilleur	0.1
+double Neurone::ALPHA = MOMENTUM;									//momentum :			0.5,			O.1
 
 //--------------------------------------
 /**
@@ -141,10 +161,10 @@ double Neurone::ALPHA = MOMENTUM;	//momentum :			0.5,	O.1
  */
 Neurone::Neurone(unsigned parNbOutput, unsigned parMyIndex)
 {
-	for (unsigned c = 0; c < parNbOutput; ++c) {
-		outputPoids_.push_back(Connection());
+	for (unsigned c = 0; c < parNbOutput; ++c) {					//Pour toutes les sorties du neurone
+		outputPoids_.push_back(Connection());						//on creer une connection
 	}
-	myIndex_ = parMyIndex; //numero de neurone dans le layer
+	myIndex_ = parMyIndex;											//numero de neurone dans le layer
 }
 
 //--------------------------------------
@@ -157,23 +177,23 @@ void Neurone::feedForward(const Layer &parPrevLayer)
 {
 	double sum = 0.0;
 	
-	for (unsigned n = 0; n < parPrevLayer.size(); ++n) {
-		sum +=	parPrevLayer[n].getOutputValue() *
+	for (unsigned n = 0; n < parPrevLayer.size(); ++n) {			//pour tout les neurones de la couche d'avant
+		sum +=	parPrevLayer[n].getOutputValue() *					//Sum = S(val_neurone_avant *poids_connection)
 		parPrevLayer[n].outputPoids_[myIndex_].poids_;
 	}
 	
-	outputValue_ = Neurone::fctTransfert(sum);
+	outputValue_ = Neurone::fctTransfert(sum);						//on applique à somme la fonction de transfert
 }
 
 //--------------------------------------
 /**
- *  caul du gradient de sortie
+ *  calcul du gradient de sortie
  *  @param parTargetVal valeur de sortie attendu
  */
 void Neurone::calcOutputGradients(double parTargetVal)
 {
 	double delta = parTargetVal - outputValue_;						//ecart entre la theorie et la sortie
-	gradient_ = delta * Neurone::fctTransfertDerivee(outputValue_);	//on applique la fonction de transfert
+	gradient_ = delta * Neurone::fctTransfertDerivee(outputValue_);	//on applique la derivee dela fct de transfert
 }
 
 //--------------------------------------
@@ -184,8 +204,8 @@ void Neurone::calcOutputGradients(double parTargetVal)
 void Neurone::calcHiddenGradients(const Layer &parNextLayer)
 {
 	//dow : derivative output weight
-	double dow = sumDOW(parNextLayer);
-	gradient_ = dow * Neurone::fctTransfertDerivee(outputValue_);
+	double dow = sumDOW(parNextLayer);								//on calcul le gradient des sorties en fonction des poids
+	gradient_ = dow * Neurone::fctTransfertDerivee(outputValue_);	//on applique la derivee de la fct de transfert
 }
 
 //--------------------------------------
@@ -195,12 +215,14 @@ void Neurone::calcHiddenGradients(const Layer &parNextLayer)
  */
 void Neurone::updateInputsPoids(Layer & parPrevLayer)
 {
-	for (unsigned n = 0; n < parPrevLayer.size(); ++n) {
+	for (unsigned n = 0; n < parPrevLayer.size(); ++n) {			//pour tout les neurones de la couches
 		Neurone &neurone = parPrevLayer[n];
 		double ancDeltaPoids = neurone.outputPoids_[myIndex_].deltaPoids_;
-		double nouvDeltaPoids = (ETA * neurone.getOutputValue() * gradient_ ) + (ALPHA * ancDeltaPoids);
-		neurone.outputPoids_[myIndex_].deltaPoids_ = nouvDeltaPoids;
-		neurone.outputPoids_[myIndex_].poids_ += nouvDeltaPoids;
+		double nouvDeltaPoids =
+			(ETA * neurone.getOutputValue() * gradient_ )
+			+ (ALPHA * ancDeltaPoids);								//le d(poids) = taux d'entrainement * gradient + momentum * l'ancien delta
+		neurone.outputPoids_[myIndex_].deltaPoids_ = nouvDeltaPoids;//update ancien d(poids)
+		neurone.outputPoids_[myIndex_].poids_ += nouvDeltaPoids;	//on modifier le poids avec le d(poids)
 		
 	}
 }
@@ -247,13 +269,12 @@ double Neurone::sumDOW(const Layer &parNextLayer) const
 {
 	double sum = 0.0;
 	
-	for (unsigned n = 0; n < parNextLayer.size() - 1; ++n) {
-		sum += outputPoids_[n].poids_ * parNextLayer[n].gradient_;
+	for (unsigned n = 0; n < parNextLayer.size() - 1; ++n) {		//pour tout les neurones de la couche supérieur - bias
+		sum += outputPoids_[n].poids_ * parNextLayer[n].gradient_;	//S(poids_connection * gradient
 	}
 	return sum;
 }
 
-int Network::nombreMesure_ = NB_MESURE;
 
 
 
@@ -265,30 +286,36 @@ int Network::nombreMesure_ = NB_MESURE;
 
 //-------------Network------------------
 //--------------------------------------
+
+//int Network::nombreMesure_ = NB_MESURE;
+
+//--------------------------------------
 /**
- *  Constructeur du reseau
+ *  Constructeur du reseau de neurone
  */
 Network::Network(const std::vector<unsigned> & parTopologie)
 {
 	error_ = 0.0;
 	derniereMoyenneErreur_ = 0.0;
-	assert(!parTopologie.empty());
+	nombreMesure_ = NB_MESURE;
+	
+	assert(!parTopologie.empty());									//si la topologie est vide, on arrete
 	nbLayers = parTopologie.size();
 	
-	for (unsigned i = 0; i < parTopologie.size(); ++i) {
-		unsigned nbNeurone = parTopologie[i];
-		assert(nbNeurone > 0);
-		layers_.push_back(Layer());
-		Layer &newLayer = layers_.back();
-		bool isLastLayer = (i == (parTopologie.size() - 1));
-		unsigned nbOutput = (isLastLayer)? 0 : parTopologie[i + 1];
+	for (unsigned i = 0; i < parTopologie.size(); ++i) {			//pour toutes les couches
+		unsigned nbNeurone = parTopologie[i];						//nombre de neurone dans la couche
+		assert(nbNeurone > 0);										//si le nombre de neurone est 0, on arrete
+		layers_.push_back(Layer());									//on ajoute la couche au reseau
+		Layer &newLayer = layers_.back();							//on pointe vers la derniere couche ajouter
+		bool isLastLayer = (i == (parTopologie.size() - 1));		//si cest la derniere couche
+		unsigned nbOutput = (isLastLayer)? 0 : parTopologie[i + 1];	//si c'est la derniere on a 0 output, sinon on a i+1
 		
-		for (unsigned j = 0; j < (nbNeurone + 1); ++j) {
-			newLayer.push_back(Neurone(nbOutput, j));
+		for (unsigned j = 0; j < (nbNeurone + 1); ++j) {			//pour le nombre de neurone + bias
+			newLayer.push_back(Neurone(nbOutput, j));				//on creer un neurone
 		}
 		
 		Neurone &biasNeurone = newLayer.back();
-		biasNeurone.setOutputValue(1.0);
+		biasNeurone.setOutputValue(1.0);							//on met la valeur du neurone de bias à 0
 	}
 	
 	//	for (auto numLayers = 0; numLayers < nbLayers; ++numLayers) {
@@ -312,17 +339,17 @@ Network::Network(const std::vector<unsigned> & parTopologie)
  */
 void Network::feedForward(const t_val & parInputValues)
 {
-	assert(parInputValues.size() == layers_[0].size() -1);
-	//on assigne les valeurs d'éntree aux neurones d'entree
-	for (unsigned i = 0; i < parInputValues.size(); ++i) {
-		layers_[0][i].setOutputValue(parInputValues[i]);
+	assert(parInputValues.size() == layers_[0].size() -1);			//si le nombre d'entree ne correspond pas au nb de neurone d'entree
+	
+	for (unsigned i = 0; i < parInputValues.size(); ++i) {			//pour le nombre d'entree
+		layers_[0][i].setOutputValue(parInputValues[i]);			//on met les valeurs dans les neurones d'entree
 	}
-	//Propagation vers les couches supérieures
-	for (auto layerNb = 1; layerNb < layers_.size(); ++layerNb) {
+	
+	for (auto layerNb = 1; layerNb < layers_.size(); ++layerNb) {	//pour toutes les couches inetermédiaires
 		Layer &currentLayer = layers_[layerNb];
 		Layer &prevLayer = layers_[layerNb - 1];
-		for (auto n = 0; n < layers_[layerNb].size() - 1; ++n) {
-			currentLayer[n].feedForward(prevLayer);
+		for (auto n = 0; n < currentLayer.size() - 1; ++n) {		//pour tout les neurones de la couches
+			currentLayer[n].feedForward(prevLayer);					//on nourrie la couche
 		}
 	}
 }
@@ -336,14 +363,15 @@ void Network::backProp(const t_val &parTargetValues)
 {
 	//calculer l'erreur du réseau avec la RMS (Root Mean Square Error)
 	Layer &outputLayer = layers_.back();
-	error_ = 0.0;
+	error_ = 0.0;													//erreur = sqrt((d1^2+d2^2+...dn^2)/n)
 	
-	for (unsigned n = 0; n <  outputLayer.size() - 1; ++n) {
-		double delta = static_cast<double>(parTargetValues[n] - outputLayer[n].getOutputValue());
-		error_ += pow(delta , 2.0);
+	for (unsigned n = 0; n <  outputLayer.size() - 1; ++n) {		//pour tout les neurone de la couche de sortie - bias
+		double delta = static_cast<double>
+			(parTargetValues[n]- outputLayer[n].getOutputValue());	//on calcul le delta entre les targets et sortie
+		error_ += pow(delta , 2.0);									//on ajoute le carré du delta à l'erreur
 	}
-	error_ /= static_cast<double>(outputLayer.size() - 1.0);
-	error_ = sqrt(error_); //RMS
+	error_ /= static_cast<double>(outputLayer.size() - 1.0);		//on divise l'erreur par la nb de neurone
+	error_ = sqrt(error_); //RMS									//et on fait la racine
 	
 	//moyenne des mesures
 	derniereMoyenneErreur_ =
@@ -351,7 +379,7 @@ void Network::backProp(const t_val &parTargetValues)
 	/ (nombreMesure_+ 1.0);
 	
 	//calcul du gradient de sortie
-	for (unsigned n = 0; n < outputLayer.size(); ++n) {
+	for (unsigned n = 0; n < outputLayer.size(); ++n) {				//calcul du gradient de sortie des neurones de sortie
 		outputLayer[n].calcOutputGradients(parTargetValues[n]);
 	}
 	
@@ -360,7 +388,7 @@ void Network::backProp(const t_val &parTargetValues)
 		Layer &hiddenLayer = layers_[layerNum];
 		Layer &nextLayer = layers_[layerNum + 1];
 		for (unsigned n = 0; n < hiddenLayer.size(); ++n) {
-			hiddenLayer[n].calcHiddenGradients(nextLayer);
+			hiddenLayer[n].calcHiddenGradients(nextLayer);			//calcul du gradient de sortie des neurones intermédiaire
 		}
 	}
 	
@@ -370,7 +398,7 @@ void Network::backProp(const t_val &parTargetValues)
 		Layer &prevLayer =	layers_[layerNum - 1];
 		
 		for (unsigned n = 0; n < static_cast<unsigned>(layer.size() - 1); ++n) {
-			layer[n].updateInputsPoids(prevLayer);
+			layer[n].updateInputsPoids(prevLayer);					//mise à jour des poids des connections
 		}
 	}
 }
@@ -395,11 +423,11 @@ void Network::getResults(t_val & parResultValues) const
  *  @param parVal ref du tableau d'entree
  *  @return le tableau de resultat
  */
-t_val Network::predict(t_val & parVal)
+t_val Network::predict(const t_val & parVal)
 {
-	feedForward(parVal);
+	feedForward(parVal);											//on nourrie le réseau avec les valeurs d'entrée
 	t_val resultat;
-	getResults(resultat);
+	getResults(resultat);											//on récupère les résultats de sortie
 	return resultat;
 }
 
@@ -432,7 +460,11 @@ void Network::getNetworkTopologie(Topologie &parTopologie) const
 	parTopologie = layers_;
 }
 
-
+//--------------------------------------
+void Network::setNbMesure(int par)
+{
+	nombreMesure_ = par;
+}
 
 
 
