@@ -41,7 +41,7 @@ void TrainData::getTopologie(std::vector<unsigned> &parTopologie)
  *  @param parInputVal tableau de donnee d'entree
  *  @return le nombre d'entree
  */
-unsigned TrainData::getNextInputs(t_val &parInputVal)
+unsigned TrainData::getNextInputs(T_val &parInputVal)
 {
 	
 	parInputVal.clear();											//on vide la liste des inputs
@@ -69,7 +69,7 @@ unsigned TrainData::getNextInputs(t_val &parInputVal)
  *  @param parTargetOutputVals tableau de targets de sortie
  *  @return le nombre de target
  */
-unsigned TrainData::getTargetOutputs(t_val &parTargetOutputVals)	//même principe que getNextInput
+unsigned TrainData::getTargetOutputs(T_val &parTargetOutputVals)	//même principe que getNextInput
 {
 	parTargetOutputVals.clear();
 	
@@ -100,7 +100,7 @@ void TrainData::calcNumberTrain()
 	}
 	trainingDataFile_.clear();
 	trainingDataFile_.seekg(0, std::ios::beg);
-	nbLigne_ = static_cast<unsigned>(i/3);
+	nbLigne_ = static_cast<unsigned>(i/2);
 }
 
 //--------------------------------------
@@ -256,7 +256,8 @@ double Neurone::fctTransfert(double parSum)
 double Neurone::fctTransfertDerivee(double par)
 {
 	//2sech^2(2x)~2-8x^2 en 0
-	return LAMBDA - par * par;
+	//return LAMBDA - par * par;
+	return 1.0 - pow(tanh(LAMBDA * par), 2.0);
 }
 
 //--------------------------------------
@@ -337,7 +338,7 @@ Network::Network(const std::vector<unsigned> & parTopologie)
  *  propagation vers les couches supérieur du reseau
  *  @param parInputValues ref du tableaus des entrees
  */
-void Network::feedForward(const t_val & parInputValues)
+void Network::feedForward(const T_val & parInputValues)
 {
 	assert(parInputValues.size() == layers_[0].size() -1);			//si le nombre d'entree ne correspond pas au nb de neurone d'entree
 	
@@ -359,7 +360,7 @@ void Network::feedForward(const t_val & parInputValues)
  *  "back propagation", on calcul les erreurs, les gradients et on update les poids
  *  @param parTargetValues ref vers le tableau des targets
  */
-void Network::backProp(const t_val &parTargetValues)
+void Network::backProp(const T_val &parTargetValues)
 {
 	//calculer l'erreur du réseau avec la RMS (Root Mean Square Error)
 	Layer &outputLayer = layers_.back();
@@ -408,7 +409,7 @@ void Network::backProp(const t_val &parTargetValues)
  *  récupération des résultats
  *  @param parResultValues ref tableau de resultat
  */
-void Network::getResults(t_val & parResultValues) const
+void Network::getResults(T_val & parResultValues) const
 {
 	parResultValues.clear();
 	
@@ -423,10 +424,10 @@ void Network::getResults(t_val & parResultValues) const
  *  @param parVal ref du tableau d'entree
  *  @return le tableau de resultat
  */
-t_val Network::predict(const t_val & parVal)
+T_val Network::predict(const T_val & parVal)
 {
 	feedForward(parVal);											//on nourrie le réseau avec les valeurs d'entrée
-	t_val resultat;
+	T_val resultat;
 	getResults(resultat);											//on récupère les résultats de sortie
 	return resultat;
 }
@@ -466,7 +467,35 @@ void Network::setNbMesure(int par)
 	nombreMesure_ = par;
 }
 
-
+//--------------------------------------
+void Network::saveInFile()
+{
+	Connections cons;
+	Neurone* neur;
+	outputFile_.setf(std::ofstream::out);
+	outputFile_.open("save.txt");
+	
+	if (!outputFile_) {
+		std::cerr << "probleme a l'ouverture du fichier" << std::endl;
+		return;
+	}
+	outputFile_ << "topologie";
+	for (unsigned n = 0; n < layers_.size(); ++n) {
+		outputFile_ << " : " << layers_[n].size() - 1 ;
+	}
+	outputFile_ << std::endl;
+	for (unsigned i = 0; i < layers_.size() - 1; ++i) {
+		for (unsigned j = 0; j < layers_[i].size(); ++j) {
+			neur = &layers_[i][j];
+			outputFile_ << "neurone: " << i << " : " << j << " : " << neur->ETA << " : " << neur->ALPHA << std::endl;
+			neur->getConnectionsValues(cons);
+			for (unsigned k = 0; k < cons.size(); ++k) {
+				outputFile_ << "connection: " << i + 1 << " : " << k << " : " << cons[k].poids_ << std::endl;
+			}
+		}
+	}
+	outputFile_.close();
+}
 
 
 

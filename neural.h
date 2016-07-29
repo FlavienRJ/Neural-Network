@@ -22,7 +22,7 @@ class Connection;
 class Neurone;
 class Network;
 using Layer			= std::vector<Neurone>;
-using t_val			= std::vector<double>;
+using T_val			= std::vector<double>;
 using Connections	= std::vector<Connection>;
 using Topologie		= std::vector<Layer>;
 
@@ -31,7 +31,7 @@ using Topologie		= std::vector<Layer>;
 const double	TAUX_ENTRAINEMENT =	0.1;
 const double	MOMENTUM =			0.1;
 const int		NB_MESURE =			10;
-const double	LAMBDA  =			1.5;
+const double	LAMBDA  =			1.0;
 const double	ERREUR =			0.01;
 
 //--------------------------------------
@@ -42,8 +42,8 @@ public:
 	TrainData(const std::string parFile);
 	bool isEOF(void) { return trainingDataFile_.eof();}
 	void getTopologie(std::vector<unsigned> & parTopologie);
-	unsigned getNextInputs(t_val & parInputVal);
-	unsigned getTargetOutputs(t_val & parTargetOutputVals);
+	unsigned getNextInputs(T_val & parInputVal);
+	unsigned getTargetOutputs(T_val & parTargetOutputVals);
 	void calcNumberTrain();
 	unsigned getNumberTrain(void) const;
 	
@@ -78,13 +78,13 @@ public:
 	void calcHiddenGradients(const Layer & parNextLayer);
 	void updateInputsPoids(Layer & parPrevLayer);
 	void getConnectionsValues(Connections & parConnections) const;
+	static double ETA;
+	static double ALPHA;
 	
 private:
 	static double fctTransfert(double parSum);
 	static double fctTransfertDerivee(double par);
 	double sumDOW(const Layer & parNextLayer) const;
-	static double ETA;
-	static double ALPHA;
 	double outputValue_;
 	Connections outputPoids_;
 	unsigned myIndex_;
@@ -98,26 +98,27 @@ class Network
 {
 public:
 	Network(const std::vector<unsigned> & parTopologie);
-	void feedForward(const t_val & parInputValues);
-	void backProp(const t_val & parTargetValues);
-	void getResults(t_val & parResultValues) const;
+	void feedForward(const T_val & parInputValues);
+	void backProp(const T_val & parTargetValues);
+	void getResults(T_val & parResultValues) const;
 	
 	double getErreur(void) const { return error_; }
 	double getErreurMoyenne(void) const { return derniereMoyenneErreur_; }
 	
-	t_val predict(const t_val & parVal);
+	T_val predict(const T_val & parVal);
 	void printNeuroneConnectionsPoids(void) const;
 	void getNetworkTopologie(Topologie & parTopologie) const;
 	void setNbMesure(int par);
 	unsigned getNbMesure() const { return nombreMesure_;}
+	void saveInFile();
 	
 private:
-	//layers_[nbLayer][nbNeurone]
 	Topologie layers_;
 	unsigned long nbLayers;
 	double error_;
 	double derniereMoyenneErreur_;
 	int nombreMesure_;
+	std::ofstream outputFile_;
 	
 };
 //#endif

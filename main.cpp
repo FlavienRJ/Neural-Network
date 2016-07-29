@@ -4,20 +4,21 @@
 
 //--------------------------------------
 //TODO
+//-creation de classe pour les différents type d'entrainement
 //-implementation d'une nouvelle classe Creature pour :
 //-AJOUT algorithme d'evolution genetique
 //	->dans les genes : la topologie du réseau, les constantes eta/alpha, poids ?
-//-ajout de la sauvegarde des parametres des neurones à la fin de l'entrainement
 //-ajout d'une base de donnee dans laquelle on stock les resultats jugee bon, pour encore augmenter la taille du fichier de test
-//-uniformiser le formatage des fichiers de donnee
 //-Lorsque peu de donnée, les répéter (3->30)
-//-ajouter du scripting LUA
 //-Convolution pour les images ?
+//- travailler sur sfml pour tracer des graphiques à partir des tableau de donnée
 
 //DONE
 //+Fonction d'affichage des tableau
 //+Fonction d'affichage de la matrice de connections
 //+fonction d'entree de prediction
+//+uniformiser le formatage des fichiers de donnee
+//+ajout de la sauvegarde des parametres du reseau à la fin de l'entrainement
 
 //--------------------------------------
 /**
@@ -30,13 +31,13 @@ void printVector(const std::vector<double> & parVec, const std::string parText =
 {
 	std::cout << parText << std::endl;
 	for (unsigned i = 0; i < parVec.size(); ++i) {
-		std::cout << parVec[i] << " ";
+		std::cout << parVec[i] << " : ";
 	}
 	std::cout << std::endl;
 }
 
 //--------------------------------------
-void requestPredict(t_val & parPredictValInput, t_val & parPredictValResult, Network & parNet)
+void requestPredict(T_val & parPredictValInput, T_val & parPredictValResult, Network & parNet)
 {
 	double val;
 	Topologie top;
@@ -51,7 +52,7 @@ void requestPredict(t_val & parPredictValInput, t_val & parPredictValResult, Net
 	parPredictValResult=parNet.predict(parPredictValInput);
 }
 
-void getArgument(const int argc,const char** argv, t_val & parArg)
+void getArgument(const int argc,const char** argv, T_val & parArg)
 {
 	if(!argc)
 	{
@@ -66,7 +67,7 @@ void getArgument(const int argc,const char** argv, t_val & parArg)
 }
 
 //--------------------------------------
-void training(Network& parNet, TrainData& parTrainData, std::vector<unsigned>& parTopologie,t_val& parInputVals, t_val& parTargetVals, t_val& parResultVals)
+void training(Network& parNet, TrainData& parTrainData, std::vector<unsigned>& parTopologie,T_val& parInputVals, T_val& parTargetVals, T_val& parResultVals)
 {
 	int numTraining = 0;
 	while (!parTrainData.isEOF()) {
@@ -93,8 +94,8 @@ void training(Network& parNet, TrainData& parTrainData, std::vector<unsigned>& p
 		
 		parNet.backProp(parTargetVals);
 		
-		//std::cout << "Erreur actuelle du reseau : " << std::setprecision(2) << parNet.getErreur() << std::endl;
-		std::cout << "Moyenne d'erreur : " << std::setprecision(2) << parNet.getErreurMoyenne() << std::endl;
+		//std::cout << "Erreur actuelle du reseau : " << parNet.getErreur() << std::endl;
+		std::cout << "Moyenne d'erreur : " << parNet.getErreurMoyenne() << std::endl;
 		
 		if ( numTraining > 100 && parNet.getErreurMoyenne() < ERREUR )
 			break;
@@ -116,6 +117,7 @@ void percentOutputNeurone(std::vector<double>& parResultValues, std::vector<doub
 		}
 		for (int j = 0; j < parPercent.size(); ++j) {
 			parPercent[j] /= sum;
+			parPercent[j] *= 100;
 		}
 	}
 	else
@@ -125,6 +127,7 @@ void percentOutputNeurone(std::vector<double>& parResultValues, std::vector<doub
 		}
 		for (int j = 0; j < parPercent.size(); ++j) {
 			parPercent[j] /= sum;
+			parPercent[j] *= 100;
 		}
 	}
 }
@@ -136,10 +139,12 @@ void percentOutputNeurone(std::vector<double>& parResultValues, std::vector<doub
  */
 int main(const int argc,const char * argv[])
 {
+	std::cout << std::setprecision(2);
+	
 	srand(static_cast<unsigned>(time(NULL)));
 	std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
 	
-	TrainData trainingData("data.txt");
+	TrainData trainingData("exemples/data.txt");
 	std::vector<unsigned> topologie;
 	trainingData.getTopologie(topologie);
 	
@@ -148,13 +153,13 @@ int main(const int argc,const char * argv[])
 	unsigned nbLine = trainingData.getNumberTrain();
 	myNet.setNbMesure(nbLine/10);
 	
-	t_val inputVals;
-	t_val targetVals;
-	t_val resultVals;
+	T_val inputVals;
+	T_val targetVals;
+	T_val resultVals;
 	
 	std::vector<double> predictValInput;
 	std::vector<double> predictValResult;
-	t_val arg;
+	T_val arg;
 	getArgument(argc, argv, arg);
 	
 	training(myNet,trainingData,topologie,inputVals,targetVals,resultVals);
@@ -170,13 +175,13 @@ int main(const int argc,const char * argv[])
 	predictValResult.pop_back();
 	printVector(predictValResult);
 	
-	t_val percent;
+	T_val percent;
 	percentOutputNeurone(predictValResult, percent);
 	printVector(percent);
+	myNet.saveInFile();
 	
 	//myNet.printNeuroneConnectionsPoids();
 	
-		//myNet.printNeuroneConnectionsPoids();
 	//std::cout << std::endl << "Done" << std::endl;
 	
 	//std::cout << std::endl << myNet.getNbMesure() << std::endl;
