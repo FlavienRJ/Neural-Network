@@ -1,4 +1,4 @@
-#pragma once
+
 //#ifndef NEURAL_H
 //#define NEURAL_H
 
@@ -14,6 +14,8 @@
 #include <iomanip>
 #include <chrono>
 #include <algorithm>
+
+//#include <boost/iostreams/stream.hpp>
 
 //--------------------------------------
 /// declaration des types
