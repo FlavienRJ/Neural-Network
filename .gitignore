@@ -4,3 +4,9 @@ neural.h.gch
 out.txt
 outN.txt
 ~$out.xlsx
+main.o
+neural.o
+stock.o
+save.txt
+build/
+Neuron-Network.build/

@@ -1,10 +1,10 @@
 #include "neural.hpp"
 #include <SFML/Graphics.hpp>
 
-class drawChart
+class Chart
 {
 public:
-	drawChart();
+	Chart();
 	
 private:
 	

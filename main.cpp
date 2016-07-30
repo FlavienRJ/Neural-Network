@@ -1,3 +1,5 @@
+//commande de compilation
+//g++ -std=c++11 -framework sfml-window -framework sfml-graphics -framework sfml-system -o app main.cpp neural.cpp stock.cpp
 //--------------------------------------
 ///Inclusion
 #include "neural.hpp"
