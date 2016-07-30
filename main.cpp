@@ -1,6 +1,6 @@
 //--------------------------------------
 ///Inclusion
-#include "neural.h"
+#include "neural.hpp"
 
 //--------------------------------------
 //TODO
@@ -30,8 +30,8 @@
 void printVector(const std::vector<double> & parVec, const std::string parText = "")
 {
 	std::cout << parText << std::endl;
-	for (unsigned i = 0; i < parVec.size(); ++i) {
-		std::cout << parVec[i] << " : ";
+	for (auto i : parVec) {
+		std::cout << i << " : ";
 	}
 	std::cout << std::endl;
 }

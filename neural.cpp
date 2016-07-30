@@ -1,5 +1,5 @@
 //--------------------------------------
-#include "neural.h"
+#include "neural.hpp"
 
 //-----------TrainData------------------
 //--------------------------------------
@@ -177,9 +177,9 @@ void Neurone::feedForward(const Layer &parPrevLayer)
 {
 	double sum = 0.0;
 	
-	for (unsigned n = 0; n < parPrevLayer.size(); ++n) {			//pour tout les neurones de la couche d'avant
-		sum +=	parPrevLayer[n].getOutputValue() *					//Sum = S(val_neurone_avant *poids_connection)
-		parPrevLayer[n].outputPoids_[myIndex_].poids_;
+	for (auto n : parPrevLayer) {			//pour tout les neurones de la couche d'avant
+		sum +=	n.getOutputValue() *					//Sum = S(val_neurone_avant *poids_connection)
+		n.outputPoids_[myIndex_].poids_;
 	}
 	
 	outputValue_ = Neurone::fctTransfert(sum);						//on applique à somme la fonction de transfert
@@ -215,8 +215,8 @@ void Neurone::calcHiddenGradients(const Layer &parNextLayer)
  */
 void Neurone::updateInputsPoids(Layer & parPrevLayer)
 {
-	for (unsigned n = 0; n < parPrevLayer.size(); ++n) {			//pour tout les neurones de la couches
-		Neurone &neurone = parPrevLayer[n];
+	for (auto& n : parPrevLayer) {			//pour tout les neurones de la couches
+		Neurone &neurone = n;
 		double ancDeltaPoids = neurone.outputPoids_[myIndex_].deltaPoids_;
 		double nouvDeltaPoids =
 			(ETA * neurone.getOutputValue() * gradient_ )
@@ -269,7 +269,6 @@ double Neurone::fctTransfertDerivee(double par)
 double Neurone::sumDOW(const Layer &parNextLayer) const
 {
 	double sum = 0.0;
-	
 	for (unsigned n = 0; n < parNextLayer.size() - 1; ++n) {		//pour tout les neurones de la couche supérieur - bias
 		sum += outputPoids_[n].poids_ * parNextLayer[n].gradient_;	//S(poids_connection * gradient
 	}
@@ -413,8 +412,8 @@ void Network::getResults(T_val & parResultValues) const
 {
 	parResultValues.clear();
 	
-	for (unsigned n = 0; n < layers_.back().size(); ++n) {
-		parResultValues.push_back(layers_.back()[n].getOutputValue());
+	for (auto n : layers_.back()) {
+		parResultValues.push_back(n.getOutputValue());
 	}
 }
 

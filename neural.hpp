@@ -1,7 +1,3 @@
-
-//#ifndef NEURAL_H
-//#define NEURAL_H
-
 //--------------------------------------
 ///Inclusion
 #include <iostream>
@@ -123,4 +119,3 @@ private:
 	std::ofstream outputFile_;
 	
 };
-//#endif
