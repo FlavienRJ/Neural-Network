@@ -100,9 +100,9 @@ private:
 class Network
 {
 public:
-	Network(const std::vector<unsigned> & parTopologie);
+	Network(const std::vector<unsigned> & parTopologie, const std::string & parSave = "");
 	void constructNetworkFromScratch(const std::vector<unsigned> & parTopologie);
-	void constructNetworkFromFile();
+	void constructNetworkFromFile(const std::string & parSave);
 	void feedForward(const T_val & parInputValues);
 	void backProp(const T_val & parTargetValues);
 	void getResults(T_val & parResultValues) const;

@@ -181,7 +181,7 @@ void Neurone::feedForward(const Layer &parPrevLayer)
 {
 	double sum = 0.0;
 	
-	for (auto n : parPrevLayer) {			//pour tout les neurones de la couche d'avant
+	for (auto& n : parPrevLayer) {			//pour tout les neurones de la couche d'avant
 		sum +=	n.getOutputValue() *					//Sum = S(val_neurone_avant *poids_connection)
 		n.outputPoids_[myIndex_].poids_;
 	}
@@ -303,7 +303,7 @@ double Neurone::sumDOW(const Layer &parNextLayer) const
 /**
  *  Constructeur du reseau de neurone
  */
-Network::Network(const std::vector<unsigned> & parTopologie)
+Network::Network(const std::vector<unsigned> & parTopologie, const std::string & parSave)
 {
 	error_ = 0.0;
 	derniereMoyenneErreur_ = 0.0;
@@ -312,8 +312,15 @@ Network::Network(const std::vector<unsigned> & parTopologie)
 	assert(!parTopologie.empty());									//si la topologie est vide, on arrete
 	nbLayers = parTopologie.size();
 	
-	//constructNetworkFromScratch(parTopologie);
-	constructNetworkFromFile();
+	if (parSave.compare("") == 0) {
+		constructNetworkFromScratch(parTopologie);
+	}
+	else
+	{
+		constructNetworkFromFile(parSave);
+	}
+	//
+	
 	
 	//	for (auto numLayers = 0; numLayers < nbLayers; ++numLayers) {
 	//		layers_.push_back(Layer());
@@ -350,94 +357,95 @@ void Network::constructNetworkFromScratch(const std::vector<unsigned int> &parTo
 }
 
 //--------------------------------------
-//void Network::constructNetworkFromFile()
-//{
-//	std::vector<unsigned> topo;
-//	inputFile_.setf(std::ifstream::in);
-//	inputFile_.open("save.txt");
-//	
-//	if (!inputFile_) {
-//		std::cerr << "probleme a l'ouverture du fichier" << std::endl;
-//	}
-//	
-//	std::string ligne;
-//	std::string label;
-//	
-//	getline(inputFile_, ligne);
-//	std::stringstream ss(ligne);
-//	
-//	ss >> label;
-//	
-//	if(label.compare("topologie:") != 0)
-//	{
-//		return;
-//	}
-//	
-//	unsigned n;
-//	while (!ss.eof()) {
-//		ss >> n;
-//		topo.push_back(n);
-//	}
-//	topo.pop_back();
-//	
-//	unsigned a;
-//	unsigned b;
-//	unsigned c;
-//	double x;
-//	double y;
-//	Connections cons;
-//	
-//	for (unsigned i = 0; i < topo.size() + 1; ++i) {
-//		layers_.push_back(Layer());
-//		Layer& lastLayer = layers_.back();
-//		
-//		bool isLastLayer = (i == (topo.size() - 1));
-//		unsigned nbOutput = (isLastLayer)? 0 : topo[i + 1];
-//		
-//		for (unsigned j = 0; j < topo[i] + 1; ++j) {
-//			c = 0;
-//			cons.clear();
-//			getline(inputFile_, ligne);
-//			ss.clear();
-//			ss.str(ligne);
-//			ss >> label;
-//			if (label.compare("neurone:") == 0) {
-//
-//				ss >> a;
-//				ss >> b;
-//				ss >> x;
-//				ss >> y;
-//			}
-//			
-//			lastLayer.push_back(Neurone(nbOutput, j));
-//			
-//			
-//			getline(inputFile_, ligne);
-//			ss.clear();
-//			ss.str(ligne);
-//			ss >> label;
-//			while ((label.compare("connection:") == 0)) {
-//				ss >> x;
-//				ss >> x;
-//				ss >> x;
-//				cons.push_back(Connection(x));
-//				
-//				getline(inputFile_, ligne);
-//				if (ligne.compare("") == 0) {
-//					inputFile_.close();
-//					return;
-//				}
-//				ss.clear();
-//				ss.str(ligne);
-//				ss >> label;
-//			}
-//			layers_[i][j].setConnectionsValues(cons);
-//		}
-//		Neurone &biasNeurone = lastLayer.back();
-//		biasNeurone.setOutputValue(1.0);
-//	}
-//	inputFile_.close();
-//}
+//A finaliser !!!!!
+void Network::constructNetworkFromFile(const std::string & parSave)
+{
+	
+	std::vector<unsigned> topo;
+	inputFile_.setf(std::ifstream::in);
+	inputFile_.open(parSave);
+
+	if (!inputFile_) {
+		std::cerr << "probleme a l'ouverture du fichier" << std::endl;
+	}
+	
+	Connections cons;
+	double x;
+	double y;
+	double a = 0;
+
+	std::string ligne;
+	std::string label;
+	
+	getline(inputFile_, ligne);
+	std::stringstream ss(ligne);
+	
+	ss >> label;
+	
+	if(label.compare("topologie:") != 0)
+	{
+		return;
+	}
+	
+	unsigned n;
+	while (!ss.eof()) {
+		ss >> n;
+		topo.push_back(n);
+	}
+	topo.pop_back();
+	
+	for (unsigned i = 0; i < topo.size(); ++i) {
+		unsigned nbNeurone = topo[i];
+		assert(nbNeurone > 0);
+		layers_.push_back(Layer());
+		Layer &newLayer = layers_.back();
+		bool isLastLayer = (i == (topo.size() - 1));
+		unsigned nbOutput = (isLastLayer)? 0 : topo[i + 1];
+		
+		for (unsigned j = 0; j < (nbNeurone + 1); ++j) {
+			getline(inputFile_, ligne);
+			ss.clear();
+			ss.str(ligne);
+			ss >> label;
+			std::cout << ss.str();
+			if (label.compare("neurone:") == 0) {
+				
+				ss.ignore();
+				ss.ignore();
+				ss >> x;
+				ss >> x;
+				ss >> y;
+				
+			}
+			newLayer.push_back(Neurone(nbOutput, j));
+			Neurone& neur = newLayer.back();
+			
+			for (unsigned n = 0; n < nbOutput; ++n) {
+				getline(inputFile_, ligne);
+				ss.clear();
+				ss.str(ligne);
+				std::cout << ss.str();
+				ss >> label;
+				std::cout << ss.str();
+				if (label.compare("connection:") == 0) {
+					
+					ss.ignore();
+					ss.ignore();
+					ss >> a;
+					ss >> a;
+					
+				}
+				cons.push_back(Connection(a));
+			}
+			neur.setConnectionsValues(cons);
+			cons.clear();
+		}
+		
+		Neurone &biasNeurone = newLayer.back();
+		biasNeurone.setOutputValue(1.0);
+	}
+	inputFile_.close();
+}
 
 //--------------------------------------
 /**

@@ -104,7 +104,7 @@ ProgrammeExemple::ProgrammeExemple(const int argc,const char * argv[]) : Program
 {
 	trainingData_ = new ReadTrainData("exemples/exemple.txt");
 	trainingData_->getTopologie(topologie_);
-	myNet_ = new Network(topologie_);
+	myNet_ = new Network(topologie_,"save.txt");
 	myNet_->setNbMesure(trainingData_->getNumberTrain()/10);
 	
 }

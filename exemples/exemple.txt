@@ -1,4 +1,4 @@
-topologie: 2 1 1
+topologie: 2 4 1
 in: 0.30 0.50
 out: 0.75
 in: 0.50 0.10
