@@ -2,7 +2,8 @@
 //g++ -std=c++11 -framework sfml-window -framework sfml-graphics -framework sfml-system -o app main.cpp neural.cpp stock.cpp
 //--------------------------------------
 ///Inclusion
-#include "neural.hpp"
+#include "stock.hpp"
+#include "main.hpp"
 
 //--------------------------------------
 //TODO
@@ -23,13 +24,81 @@
 //+ajout de la sauvegarde des parametres du reseau à la fin de l'entrainement
 
 //--------------------------------------
+void fChrono::start()
+{
+	time_ = std::chrono::high_resolution_clock::now();
+}
+
+//--------------------------------------
+long long fChrono::getDuration()
+{
+	std::chrono::high_resolution_clock::time_point t = std::chrono::high_resolution_clock::now();
+	return std::chrono::duration_cast<std::chrono::milliseconds>(t - time_).count();
+}
+
+//--------------------------------------
+void fChrono::printDuration()
+{
+	std::cout << "temps depuis le debut : " << getDuration() << " ms" << std::endl;
+}
+
+//--------------------------------------
+Programme::Programme(const int argc,const char * argv[])
+{
+	getArgument(argc, argv, arg_);
+}
+//--------------------------------------
+ProgrammeBinaire::ProgrammeBinaire(const int argc,const char * argv[]) :
+	Programme(argc,argv)
+{
+	trainingData_ = new TrainData("exemples/binaire.txt");
+	trainingData_->getTopologie(topologie_);
+	myNet_ = new Network(topologie_);
+	myNet_->setNbMesure(trainingData_->getNumberTrain()/10);
+	
+}
+
+//--------------------------------------
+void ProgrammeBinaire::Entrainement()
+{
+	training(*myNet_,*trainingData_,topologie_,inputVals_,targetVals_,resultVals_);
+}
+
+//--------------------------------------
+void ProgrammeBinaire::Prediction()
+{
+	if (arg_.size()) {
+		predictValInput_ = arg_;
+	}
+	else
+	{
+		predictValInput_.push_back(1.0);
+		predictValInput_.push_back(0.2);
+	}
+	
+	requestPredict(predictValInput_, predictValResult_, *myNet_);
+	predictValResult_.pop_back();
+	printVector(predictValResult_);
+	T_val percent;
+	percentOutputNeurone(predictValResult_, percent);
+	printVector(percent);
+
+}
+
+//--------------------------------------
+void ProgrammeBinaire::EndProgrammeBinaire()
+{
+	myNet_->saveInFile();
+}
+
+//--------------------------------------
 /**
  *  afficher le contenu d'un Vector
  *
  *  @param parVec  le vector à afficher
  *  @param parText le texte (optionnel)
  */
-void printVector(const std::vector<double> & parVec, const std::string parText = "")
+void printVector(const std::vector<double> & parVec, const std::string parText)
 {
 	std::cout << parText << std::endl;
 	for (auto i : parVec) {
@@ -141,55 +210,45 @@ void percentOutputNeurone(std::vector<double>& parResultValues, std::vector<doub
  */
 int main(const int argc,const char * argv[])
 {
+	fChrono duree;
+	duree.start();
+	
 	std::cout << std::setprecision(2);
 	
-	srand(static_cast<unsigned>(time(NULL)));
-	std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
+	T_Entrainement entrainement = BINAIRE;
 	
-	TrainData trainingData("exemples/data.txt");
-	std::vector<unsigned> topologie;
-	trainingData.getTopologie(topologie);
-	
-	Network myNet(topologie);
-	
-	unsigned nbLine = trainingData.getNumberTrain();
-	myNet.setNbMesure(nbLine/10);
-	
-	T_val inputVals;
-	T_val targetVals;
-	T_val resultVals;
-	
-	std::vector<double> predictValInput;
-	std::vector<double> predictValResult;
-	T_val arg;
-	getArgument(argc, argv, arg);
-	
-	training(myNet,trainingData,topologie,inputVals,targetVals,resultVals);
-	if (arg.size()) {
-		predictValInput = arg;
+	switch (entrainement) {
+		case BINAIRE:
+		{
+			ProgrammeBinaire prog(argc,argv);
+			prog.Entrainement();
+			prog.Prediction();
+			prog.EndProgrammeBinaire();
+			break;
+		}
+		case EXEMPLE:
+		{
+			break;
+		}
+		case MULTIPLE2:
+		{
+			break;
+		}
+		case NOMBRE:
+		{
+			break;
+		}
+		case XOR:
+		{
+			break;
+		}
+		default:
+		{
+			break;
+		}
 	}
-	else
-	{
-		predictValInput.push_back(1.0);
-		predictValInput.push_back(0.2);
-	}
-	requestPredict(predictValInput, predictValResult, myNet);
-	predictValResult.pop_back();
-	printVector(predictValResult);
 	
-	T_val percent;
-	percentOutputNeurone(predictValResult, percent);
-	printVector(percent);
-	myNet.saveInFile();
-	
-	//myNet.printNeuroneConnectionsPoids();
-	
-	//std::cout << std::endl << "Done" << std::endl;
-	
-	//std::cout << std::endl << myNet.getNbMesure() << std::endl;
-	std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
-	auto duree = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
-	std::cout << "temps d'execution : " << duree << " ms" << std::endl;
+	duree.printDuration();
 	
     return 0;
 }

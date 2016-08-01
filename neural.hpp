@@ -1,3 +1,5 @@
+#ifndef NEURAL_HPP
+#define NEURAL_HPP
 //--------------------------------------
 ///Inclusion
 #include <iostream>
@@ -10,6 +12,7 @@
 #include <iomanip>
 #include <chrono>
 #include <algorithm>
+#include <thread>
 
 //#include <boost/iostreams/stream.hpp>
 
@@ -23,6 +26,16 @@ using Layer			= std::vector<Neurone>;
 using T_val			= std::vector<double>;
 using Connections	= std::vector<Connection>;
 using Topologie		= std::vector<Layer>;
+
+//--------------------------------------
+enum T_Entrainement
+{
+	BINAIRE,
+	EXEMPLE,
+	MULTIPLE2,
+	NOMBRE,
+	XOR
+};
 
 //--------------------------------------
 /// Constantes
@@ -119,3 +132,4 @@ private:
 	std::ofstream outputFile_;
 	
 };
+#endif
