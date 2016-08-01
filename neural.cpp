@@ -6,7 +6,7 @@
 /**
  *  Constructeur de la classe d'entrainement
  */
-TrainData::TrainData(const std::string parFile)
+ReadTrainData::ReadTrainData(const std::string parFile)
 {
 	trainingDataFile_.open(parFile.c_str());						//ouverture du fichier d'entrainement
 	calcNumberTrain();
@@ -17,7 +17,7 @@ TrainData::TrainData(const std::string parFile)
  *  Recupere la topologie du fichier de donnee
  *  @param parTopologie tableau qui contient la topologie
  */
-void TrainData::getTopologie(std::vector<unsigned> &parTopologie)
+void ReadTrainData::getTopologie(std::vector<unsigned> &parTopologie)
 {
 	std::string ligne;
 	std::string label;
@@ -41,7 +41,7 @@ void TrainData::getTopologie(std::vector<unsigned> &parTopologie)
  *  @param parInputVal tableau de donnee d'entree
  *  @return le nombre d'entree
  */
-unsigned TrainData::getNextInputs(T_val &parInputVal)
+unsigned ReadTrainData::getNextInputs(T_val &parInputVal)
 {
 	
 	parInputVal.clear();											//on vide la liste des inputs
@@ -69,7 +69,7 @@ unsigned TrainData::getNextInputs(T_val &parInputVal)
  *  @param parTargetOutputVals tableau de targets de sortie
  *  @return le nombre de target
  */
-unsigned TrainData::getTargetOutputs(T_val &parTargetOutputVals)	//même principe que getNextInput
+unsigned ReadTrainData::getTargetOutputs(T_val &parTargetOutputVals)	//même principe que getNextInput
 {
 	parTargetOutputVals.clear();
 	
@@ -91,7 +91,7 @@ unsigned TrainData::getTargetOutputs(T_val &parTargetOutputVals)	//même princip
 }
 
 //--------------------------------------
-void TrainData::calcNumberTrain()
+void ReadTrainData::calcNumberTrain()
 {
 	std::string ligne;
 	unsigned i = 0;
@@ -104,7 +104,7 @@ void TrainData::calcNumberTrain()
 }
 
 //--------------------------------------
-unsigned TrainData::getNumberTrain() const
+unsigned ReadTrainData::getNumberTrain() const
 {
 	return nbLigne_;
 }
@@ -130,6 +130,12 @@ Connection::Connection()
 }
 
 //--------------------------------------
+Connection::Connection(double par)
+{
+	poids_ = par;
+}
+
+//--------------------------------------
 /**
  *  creer un poids random
  *  @return une valeur aléatoire entre 0 et 1
@@ -149,11 +155,6 @@ double Connection::poidsRandom(void)
 
 //-------------Neurone------------------
 //--------------------------------------
-/**
- *  AJOUTER UN MECANISME D'EVOLUTION
- */
-double Neurone::ETA = TAUX_ENTRAINEMENT;							//taux d'entrainement :	O.15, meilleur	0.1
-double Neurone::ALPHA = MOMENTUM;									//momentum :			0.5,			O.1
 
 //--------------------------------------
 /**
@@ -164,7 +165,10 @@ Neurone::Neurone(unsigned parNbOutput, unsigned parMyIndex)
 	for (unsigned c = 0; c < parNbOutput; ++c) {					//Pour toutes les sorties du neurone
 		outputPoids_.push_back(Connection());						//on creer une connection
 	}
-	myIndex_ = parMyIndex;											//numero de neurone dans le layer
+	myIndex_ = parMyIndex;
+	ETA = TAUX_ENTRAINEMENT;
+	ALPHA = MOMENTUM;
+	//numero de neurone dans le layer
 }
 
 //--------------------------------------
@@ -238,6 +242,12 @@ void Neurone::getConnectionsValues(Connections & parConnections) const
 }
 
 //--------------------------------------
+void Neurone::setConnectionsValues(Connections &parConnections)
+{
+	outputPoids_ = parConnections;
+}
+
+//--------------------------------------
 /**
  *  fonction de transfert
  *  @param parSum valeur de la somme
@@ -302,6 +312,26 @@ Network::Network(const std::vector<unsigned> & parTopologie)
 	assert(!parTopologie.empty());									//si la topologie est vide, on arrete
 	nbLayers = parTopologie.size();
 	
+	//constructNetworkFromScratch(parTopologie);
+	constructNetworkFromFile();
+	
+	//	for (auto numLayers = 0; numLayers < nbLayers; ++numLayers) {
+	//		layers_.push_back(Layer());
+	//		unsigned nbOutput = (numLayers == parTopologie.size() - 1)?
+	//		0:
+	//		parTopologie[numLayers + 1];
+	//		//on ajoute les neurones le le "bias" neurone --> <=
+	//		for (auto numNeuron = 0; numNeuron <= parTopologie[numLayers]; ++numNeuron) {
+	//			layers_.back().push_back(Neurone(nbOutput,numNeuron));
+	//			std::cout << "Ajout du neurone : " << numNeuron << " a la couche : " << numLayers <<  std::endl;
+	//		}
+	//		layers_.back().back().setOutputValue(1.0);
+	//	}
+}
+
+//--------------------------------------
+void Network::constructNetworkFromScratch(const std::vector<unsigned int> &parTopologie)
+{
 	for (unsigned i = 0; i < parTopologie.size(); ++i) {			//pour toutes les couches
 		unsigned nbNeurone = parTopologie[i];						//nombre de neurone dans la couche
 		assert(nbNeurone > 0);										//si le nombre de neurone est 0, on arrete
@@ -317,20 +347,97 @@ Network::Network(const std::vector<unsigned> & parTopologie)
 		Neurone &biasNeurone = newLayer.back();
 		biasNeurone.setOutputValue(1.0);							//on met la valeur du neurone de bias à 0
 	}
-	
-	//	for (auto numLayers = 0; numLayers < nbLayers; ++numLayers) {
-	//		layers_.push_back(Layer());
-	//		unsigned nbOutput = (numLayers == parTopologie.size() - 1)?
-	//		0:
-	//		parTopologie[numLayers + 1];
-	//		//on ajoute les neurones le le "bias" neurone --> <=
-	//		for (auto numNeuron = 0; numNeuron <= parTopologie[numLayers]; ++numNeuron) {
-	//			layers_.back().push_back(Neurone(nbOutput,numNeuron));
-	//			std::cout << "Ajout du neurone : " << numNeuron << " a la couche : " << numLayers <<  std::endl;
-	//		}
-	//		layers_.back().back().setOutputValue(1.0);
-	//	}
 }
+
+//--------------------------------------
+//void Network::constructNetworkFromFile()
+//{
+//	std::vector<unsigned> topo;
+//	inputFile_.setf(std::ifstream::in);
+//	inputFile_.open("save.txt");
+//	
+//	if (!inputFile_) {
+//		std::cerr << "probleme a l'ouverture du fichier" << std::endl;
+//	}
+//	
+//	std::string ligne;
+//	std::string label;
+//	
+//	getline(inputFile_, ligne);
+//	std::stringstream ss(ligne);
+//	
+//	ss >> label;
+//	
+//	if(label.compare("topologie:") != 0)
+//	{
+//		return;
+//	}
+//	
+//	unsigned n;
+//	while (!ss.eof()) {
+//		ss >> n;
+//		topo.push_back(n);
+//	}
+//	topo.pop_back();
+//	
+//	unsigned a;
+//	unsigned b;
+//	unsigned c;
+//	double x;
+//	double y;
+//	Connections cons;
+//	
+//	for (unsigned i = 0; i < topo.size() + 1; ++i) {
+//		layers_.push_back(Layer());
+//		Layer& lastLayer = layers_.back();
+//		
+//		bool isLastLayer = (i == (topo.size() - 1));
+//		unsigned nbOutput = (isLastLayer)? 0 : topo[i + 1];
+//		
+//		for (unsigned j = 0; j < topo[i] + 1; ++j) {
+//			c = 0;
+//			cons.clear();
+//			getline(inputFile_, ligne);
+//			ss.clear();
+//			ss.str(ligne);
+//			ss >> label;
+//			if (label.compare("neurone:") == 0) {
+//
+//				ss >> a;
+//				ss >> b;
+//				ss >> x;
+//				ss >> y;
+//			}
+//			
+//			lastLayer.push_back(Neurone(nbOutput, j));
+//			
+//			
+//			getline(inputFile_, ligne);
+//			ss.clear();
+//			ss.str(ligne);
+//			ss >> label;
+//			while ((label.compare("connection:") == 0)) {
+//				ss >> x;
+//				ss >> x;
+//				ss >> x;
+//				cons.push_back(Connection(x));
+//				
+//				getline(inputFile_, ligne);
+//				if (ligne.compare("") == 0) {
+//					inputFile_.close();
+//					return;
+//				}
+//				ss.clear();
+//				ss.str(ligne);
+//				ss >> label;
+//			}
+//			layers_[i][j].setConnectionsValues(cons);
+//		}
+//		Neurone &biasNeurone = lastLayer.back();
+//		biasNeurone.setOutputValue(1.0);
+//	}
+//	inputFile_.close();
+//}
 
 //--------------------------------------
 /**
@@ -478,18 +585,18 @@ void Network::saveInFile()
 		std::cerr << "probleme a l'ouverture du fichier" << std::endl;
 		return;
 	}
-	outputFile_ << "topologie";
+	outputFile_ << "topologie: ";
 	for (unsigned n = 0; n < layers_.size(); ++n) {
-		outputFile_ << " : " << layers_[n].size() - 1 ;
+		outputFile_ << layers_[n].size() - 1 << " ";
 	}
 	outputFile_ << std::endl;
 	for (unsigned i = 0; i < layers_.size() - 1; ++i) {
 		for (unsigned j = 0; j < layers_[i].size(); ++j) {
 			neur = &layers_[i][j];
-			outputFile_ << "neurone: " << i << " : " << j << " : " << neur->ETA << " : " << neur->ALPHA << std::endl;
+			outputFile_ << "neurone: " << i << " " << j << " " << neur->ETA << " " << neur->ALPHA << std::endl;
 			neur->getConnectionsValues(cons);
 			for (unsigned k = 0; k < cons.size(); ++k) {
-				outputFile_ << "connection: " << i + 1 << " : " << k << " : " << cons[k].poids_ << std::endl;
+				outputFile_ << "connection: " << i + 1 << " " << k << " " << cons[k].poids_ << std::endl;
 			}
 		}
 	}

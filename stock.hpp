@@ -8,6 +8,7 @@
 class fWidget;
 class fChart;
 class fButton;
+class fLabel;
 
 //--------------------------------------
 class fWidget
@@ -34,6 +35,16 @@ class fButton : public fWidget
 {
 public:
 	fButton();
+	
+private:
+	
+};
+
+//--------------------------------------
+class fLabel : public fWidget
+{
+public:
+	fLabel();
 	
 private:
 	

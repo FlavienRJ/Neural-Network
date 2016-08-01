@@ -28,16 +28,6 @@ using Connections	= std::vector<Connection>;
 using Topologie		= std::vector<Layer>;
 
 //--------------------------------------
-enum T_Entrainement
-{
-	BINAIRE,
-	EXEMPLE,
-	MULTIPLE2,
-	NOMBRE,
-	XOR
-};
-
-//--------------------------------------
 /// Constantes
 const double	TAUX_ENTRAINEMENT =	0.1;
 const double	MOMENTUM =			0.1;
@@ -47,10 +37,10 @@ const double	ERREUR =			0.01;
 
 //--------------------------------------
 /// Class d'entrainement
-class TrainData
+class ReadTrainData
 {
 public:
-	TrainData(const std::string parFile);
+	ReadTrainData(const std::string parFile);
 	bool isEOF(void) { return trainingDataFile_.eof();}
 	void getTopologie(std::vector<unsigned> & parTopologie);
 	unsigned getNextInputs(T_val & parInputVal);
@@ -69,6 +59,7 @@ class Connection
 {
 public:
 	Connection();
+	Connection(double par);
 	double poids_;
 	double deltaPoids_;
 	
@@ -89,8 +80,9 @@ public:
 	void calcHiddenGradients(const Layer & parNextLayer);
 	void updateInputsPoids(Layer & parPrevLayer);
 	void getConnectionsValues(Connections & parConnections) const;
-	static double ETA;
-	static double ALPHA;
+	void setConnectionsValues(Connections & parConnections);
+	double ETA;
+	double ALPHA;
 	
 private:
 	static double fctTransfert(double parSum);
@@ -109,6 +101,8 @@ class Network
 {
 public:
 	Network(const std::vector<unsigned> & parTopologie);
+	void constructNetworkFromScratch(const std::vector<unsigned> & parTopologie);
+	void constructNetworkFromFile();
 	void feedForward(const T_val & parInputValues);
 	void backProp(const T_val & parTargetValues);
 	void getResults(T_val & parResultValues) const;
@@ -130,6 +124,7 @@ private:
 	double derniereMoyenneErreur_;
 	int nombreMesure_;
 	std::ofstream outputFile_;
+	std::ifstream inputFile_;
 	
 };
 #endif
