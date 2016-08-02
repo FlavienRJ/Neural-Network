@@ -14,18 +14,22 @@
 #include <algorithm>
 #include <thread>
 #include <memory>
+#include <unistd.h>
 
 //#include <boost/iostreams/stream.hpp>
 
 //--------------------------------------
 /// declaration des types
-class TrainData;
-class Connection;
-class Neurone;
-class Network;
-using Layer			= std::vector<Neurone>;
+namespace ia {
+	class TrainData;
+	class Connection;
+	class Neurone;
+	class Network;
+}
+
+using Layer			= std::vector<ia::Neurone>;
 using T_val			= std::vector<double>;
-using Connections	= std::vector<Connection>;
+using Connections	= std::vector<ia::Connection>;
 using Topologie		= std::vector<Layer>;
 
 //--------------------------------------
@@ -38,94 +42,100 @@ const double	ERREUR =			0.01;
 
 //--------------------------------------
 /// Class d'entrainement
-class ReadTrainData
-{
-public:
-	ReadTrainData(const std::string parFile);
-	bool isEOF(void) { return trainingDataFile_.eof();}
-	void getTopologie(std::vector<unsigned> & parTopologie);
-	unsigned getNextInputs(T_val & parInputVal);
-	unsigned getTargetOutputs(T_val & parTargetOutputVals);
-	void calcNumberTrain();
-	unsigned getNumberTrain(void) const;
+namespace ia {
+	class ReadTrainData
+	{
+	public:
+		ReadTrainData(const std::string parFile);
+		bool isEOF(void) { return trainingDataFile_.eof();}
+		void getTopologie(std::vector<unsigned> & parTopologie);
+		unsigned getNextInputs(T_val & parInputVal);
+		unsigned getTargetOutputs(T_val & parTargetOutputVals);
+		void calcNumberTrain();
+		unsigned getNumberTrain(void) const;
+		
+	private:
+		std::ifstream trainingDataFile_;
+		unsigned nbLigne_;
+	};
 	
-private:
-	std::ifstream trainingDataFile_;
-	unsigned nbLigne_;
-};
-
-//--------------------------------------
-/// classe de definition des connections
-class Connection
-{
-public:
-	Connection();
-	Connection(double par);
-	double poids_;
-	double deltaPoids_;
 	
-private:
-	static double poidsRandom(void);
-};
-
-//--------------------------------------
-/// classe de definition des neurones
-class Neurone
-{
-public:
-	Neurone(unsigned parNbOutput, unsigned parMyIndex);
-	inline void setOutputValue(double parOutputValue) {outputValue_ = parOutputValue;}
-	inline double getOutputValue(void) const {return outputValue_;}
-	void feedForward(const Layer & parPrevLayer);
-	void calcOutputGradients(double parTargetVal);
-	void calcHiddenGradients(const Layer & parNextLayer);
-	void updateInputsPoids(Layer & parPrevLayer);
-	void getConnectionsValues(Connections & parConnections) const;
-	void setConnectionsValues(Connections & parConnections);
-	double ETA;
-	double ALPHA;
+	//--------------------------------------
+	/// classe de definition des connections
+	class Connection
+	{
+	public:
+		Connection();
+		Connection(double par);
+		double poids_;
+		double deltaPoids_;
+		
+	private:
+		static double poidsRandom(void);
+	};
 	
-private:
-	static double fctTransfert(double parSum);
-	static double fctTransfertDerivee(double par);
-	double sumDOW(const Layer & parNextLayer) const;
-	double outputValue_;
-	Connections outputPoids_;
-	unsigned myIndex_;
-	double gradient_;
 	
-};
-
-//--------------------------------------
-/// classe qui contient le reseau de neurone
-class Network
-{
-public:
-	Network(const std::vector<unsigned> & parTopologie, const std::string & parSave = "");
-	void constructNetworkFromScratch(const std::vector<unsigned> & parTopologie);
-	bool constructNetworkFromFile(const std::string & parSave);
-	void feedForward(const T_val & parInputValues);
-	void backProp(const T_val & parTargetValues);
-	void getResults(T_val & parResultValues) const;
 	
-	double getErreur(void) const { return error_; }
-	double getErreurMoyenne(void) const { return derniereMoyenneErreur_; }
+	//--------------------------------------
+	/// classe de definition des neurones
+	class Neurone
+	{
+	public:
+		Neurone(unsigned parNbOutput, unsigned parMyIndex);
+		inline void setOutputValue(double parOutputValue) {outputValue_ = parOutputValue;}
+		inline double getOutputValue(void) const {return outputValue_;}
+		void feedForward(const Layer & parPrevLayer);
+		void calcOutputGradients(double parTargetVal);
+		void calcHiddenGradients(const Layer & parNextLayer);
+		void updateInputsPoids(Layer & parPrevLayer);
+		void getConnectionsValues(Connections & parConnections) const;
+		void setConnectionsValues(Connections & parConnections);
+		double ETA;
+		double ALPHA;
+		
+	private:
+		static double fctTransfert(double parSum);
+		static double fctTransfertDerivee(double par);
+		double sumDOW(const Layer & parNextLayer) const;
+		double outputValue_;
+		Connections outputPoids_;
+		unsigned myIndex_;
+		double gradient_;
+		
+	};
 	
-	T_val predict(const T_val & parVal);
-	void printNeuroneConnectionsPoids(void) const;
-	void getNetworkTopologie(Topologie & parTopologie) const;
-	void setNbMesure(int par);
-	unsigned getNbMesure() const { return nombreMesure_;}
-	void saveInFile();
+	//--------------------------------------
+	/// classe qui contient le reseau de neurone
+	class Network
+	{
+	public:
+		Network(const std::vector<unsigned> & parTopologie, const std::string & parSave = "");
+		void constructNetworkFromScratch(const std::vector<unsigned> & parTopologie);
+		bool constructNetworkFromFile(const std::string & parSave);
+		void feedForward(const T_val & parInputValues);
+		void backProp(const T_val & parTargetValues);
+		void getResults(T_val & parResultValues) const;
+		
+		double getErreur(void) const { return error_; }
+		double getErreurMoyenne(void) const { return derniereMoyenneErreur_; }
+		
+		T_val predict(const T_val & parVal);
+		void printNeuroneConnectionsPoids(void) const;
+		void getNetworkTopologie(Topologie & parTopologie) const;
+		void setNbMesure(int par);
+		unsigned getNbMesure() const { return nombreMesure_;}
+		void saveInFile();
+		
+	private:
+		Topologie layers_;
+		unsigned long nbLayers;
+		double error_;
+		double derniereMoyenneErreur_;
+		int nombreMesure_;
+		std::ofstream outputFile_;
+		std::unique_ptr<std::ifstream> inputFile_;
+		
+	};
 	
-private:
-	Topologie layers_;
-	unsigned long nbLayers;
-	double error_;
-	double derniereMoyenneErreur_;
-	int nombreMesure_;
-	std::ofstream outputFile_;
-	std::ifstream inputFile_;
-	
-};
+}
 #endif

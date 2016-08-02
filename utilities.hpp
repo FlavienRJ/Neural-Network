@@ -16,9 +16,9 @@ class ProgrammeXor;
 
 //--------------------------------------
 void printVector(const std::vector<double> & parVec, const std::string parText  = "");
-void requestPredict(T_val & parPredictValInput, T_val & parPredictValResult, Network & parNet);
+void requestPredict(T_val & parPredictValInput, T_val & parPredictValResult, ia::Network & parNet);
 void getArgument(const int argc,const char** argv, T_val & parArg);
-void training(Network& parNet, ReadTrainData& parTrainData, std::vector<unsigned>& parTopologie,T_val& parInputVals, T_val& parTargetVals, T_val& parResultVals);
+void training(ia::Network& parNet, ia::ReadTrainData& parTrainData, std::vector<unsigned>& parTopologie,T_val& parInputVals, T_val& parTargetVals, T_val& parResultVals);
 void percentOutputNeurone(std::vector<double>& parResultValues, std::vector<double>& parPercent);
 
 //--------------------------------------
@@ -47,7 +47,7 @@ public:
 	void EndProgramme() const;
 	
 protected:
-	std::unique_ptr<Network> myNet_;
+	std::unique_ptr<ia::Network> myNet_;
 	
 	T_val inputVals_;
 	T_val targetVals_;
@@ -67,7 +67,7 @@ public:
 	
 private:
 	
-	ReadTrainData* trainingData_;
+	ia::ReadTrainData* trainingData_;
 	std::vector<unsigned> topologie_;
 };
 
@@ -80,7 +80,7 @@ public:
 	virtual void Prediction();
 	
 private:
-	ReadTrainData* trainingData_;
+	ia::ReadTrainData* trainingData_;
 	std::vector<unsigned> topologie_;
 	
 };
@@ -94,7 +94,7 @@ public:
 	virtual void Prediction();
 	
 private:
-	ReadTrainData* trainingData_;
+	ia::ReadTrainData* trainingData_;
 	std::vector<unsigned> topologie_;
 	
 };
@@ -108,7 +108,7 @@ public:
 	virtual void Prediction();
 	
 private:
-	ReadTrainData* trainingData_;
+	ia::ReadTrainData* trainingData_;
 	std::vector<unsigned> topologie_;
 	
 };
@@ -122,7 +122,7 @@ public:
 	virtual void Prediction();
 	
 private:
-	ReadTrainData* trainingData_;
+	ia::ReadTrainData* trainingData_;
 	std::vector<unsigned> topologie_;
 	
 };

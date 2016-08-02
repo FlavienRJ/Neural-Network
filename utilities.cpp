@@ -39,7 +39,7 @@ Programme::Programme(const int argc,const char * argv[])
 //--------------------------------------
 void Programme::EndProgramme() const
 {
-	myNet_->printNeuroneConnectionsPoids();
+	//myNet_->printNeuroneConnectionsPoids();
 	myNet_->saveInFile();
 }
 
@@ -56,9 +56,9 @@ void Programme::EndProgramme() const
 //--------------------------------------
 ProgrammeBinaire::ProgrammeBinaire(const int argc,const char * argv[]) : Programme(argc,argv)
 {
-	trainingData_ = new ReadTrainData("exemples/binaire.txt");
+	trainingData_ = new ia::ReadTrainData("exemples/binaire.txt");
 	trainingData_->getTopologie(topologie_);
-	myNet_ = std::unique_ptr<Network>(new Network(topologie_));
+	myNet_ = std::unique_ptr<ia::Network>(new ia::Network(topologie_));
 	myNet_->setNbMesure(trainingData_->getNumberTrain()/10);
 	
 }
@@ -103,9 +103,9 @@ void ProgrammeBinaire::Prediction()
 //--------------------------------------
 ProgrammeExemple::ProgrammeExemple(const int argc,const char * argv[]) : Programme(argc,argv)
 {
-	trainingData_ = new ReadTrainData("exemples/exemple.txt");
+	trainingData_ = new ia::ReadTrainData("exemples/exemple.txt");
 	trainingData_->getTopologie(topologie_);
-	myNet_ = std::unique_ptr<Network>(new Network(topologie_,"save.txt"));
+	myNet_ = std::unique_ptr<ia::Network>(new ia::Network(topologie_,"save.txt"));
 	myNet_->setNbMesure(trainingData_->getNumberTrain()/10);
 	
 }
@@ -150,9 +150,9 @@ void ProgrammeExemple::Prediction()
 //--------------------------------------
 ProgrammeMultiple2::ProgrammeMultiple2(const int argc,const char * argv[]) : Programme(argc,argv)
 {
-	trainingData_ = new ReadTrainData("exemples/multiple2.txt");
+	trainingData_ = new ia::ReadTrainData("exemples/multiple2.txt");
 	trainingData_->getTopologie(topologie_);
-	myNet_ = std::unique_ptr<Network>(new Network(topologie_));
+	myNet_ = std::unique_ptr<ia::Network>(new ia::Network(topologie_));
 	myNet_->setNbMesure(trainingData_->getNumberTrain()/10);
 	
 }
@@ -197,9 +197,9 @@ void ProgrammeMultiple2::Prediction()
 //--------------------------------------
 ProgrammeNombre::ProgrammeNombre(const int argc,const char * argv[]) : Programme(argc,argv)
 {
-	trainingData_ = new ReadTrainData("exemples/nombre.txt");
+	trainingData_ = new ia::ReadTrainData("exemples/nombre.txt");
 	trainingData_->getTopologie(topologie_);
-	myNet_ = std::unique_ptr<Network>(new Network(topologie_));
+	myNet_ = std::unique_ptr<ia::Network>(new ia::Network(topologie_));
 	myNet_->setNbMesure(trainingData_->getNumberTrain()/10);
 	
 }
@@ -244,9 +244,9 @@ void ProgrammeNombre::Prediction()
 //--------------------------------------
 ProgrammeXor::ProgrammeXor(const int argc,const char * argv[]) : Programme(argc,argv)
 {
-	trainingData_ = new ReadTrainData("exemples/xor.txt");
+	trainingData_ = new ia::ReadTrainData("exemples/xor.txt");
 	trainingData_->getTopologie(topologie_);
-	myNet_ = std::unique_ptr<Network>(new Network(topologie_));
+	myNet_ = std::unique_ptr<ia::Network>(new ia::Network(topologie_));
 	myNet_->setNbMesure(trainingData_->getNumberTrain()/10);
 	
 }
@@ -326,7 +326,7 @@ void printVector(const std::vector<double> & parVec, const std::string parText)
 }
 
 //--------------------------------------
-void requestPredict(T_val & parPredictValInput, T_val & parPredictValResult, Network & parNet)
+void requestPredict(T_val & parPredictValInput, T_val & parPredictValResult, ia::Network & parNet)
 {
 	double val;
 	Topologie top;
@@ -356,7 +356,7 @@ void getArgument(const int argc,const char** argv, T_val & parArg)
 }
 
 //--------------------------------------
-void training(Network& parNet, ReadTrainData& parTrainData, std::vector<unsigned>& parTopologie,T_val& parInputVals, T_val& parTargetVals, T_val& parResultVals)
+void training(ia::Network& parNet, ia::ReadTrainData& parTrainData, std::vector<unsigned>& parTopologie,T_val& parInputVals, T_val& parTargetVals, T_val& parResultVals)
 {
 	int numTraining = 0;
 	while (!parTrainData.isEOF()) {

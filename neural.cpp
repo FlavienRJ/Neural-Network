@@ -1,12 +1,13 @@
 //--------------------------------------
 #include "neural.hpp"
 
+using namespace ia;
 //-----------TrainData------------------
 //--------------------------------------
 /**
  *  Constructeur de la classe d'entrainement
  */
-ReadTrainData::ReadTrainData(const std::string parFile)
+::ReadTrainData::ReadTrainData(const std::string parFile)
 {
 	trainingDataFile_.open(parFile.c_str());						//ouverture du fichier d'entrainement
 	calcNumberTrain();
@@ -17,7 +18,7 @@ ReadTrainData::ReadTrainData(const std::string parFile)
  *  Recupere la topologie du fichier de donnee
  *  @param parTopologie tableau qui contient la topologie
  */
-void ReadTrainData::getTopologie(std::vector<unsigned> &parTopologie)
+void ::ReadTrainData::getTopologie(std::vector<unsigned> &parTopologie)
 {
 	std::string ligne;
 	std::string label;
@@ -41,7 +42,7 @@ void ReadTrainData::getTopologie(std::vector<unsigned> &parTopologie)
  *  @param parInputVal tableau de donnee d'entree
  *  @return le nombre d'entree
  */
-unsigned ReadTrainData::getNextInputs(T_val &parInputVal)
+unsigned ::ReadTrainData::getNextInputs(T_val &parInputVal)
 {
 	
 	parInputVal.clear();											//on vide la liste des inputs
@@ -123,14 +124,14 @@ unsigned ReadTrainData::getNumberTrain() const
 /**
  *  constructeur de connection
  */
-Connection::Connection()
+::Connection::Connection()
 {
 	poids_ = poidsRandom();											//constructeur de connection insigne
 	//std::cout << poids_ << " : " << std::endl;					//une valeur random
 }
 
 //--------------------------------------
-Connection::Connection(double par)
+::Connection::Connection(double par)
 {
 	poids_ = par;
 }
@@ -140,7 +141,7 @@ Connection::Connection(double par)
  *  creer un poids random
  *  @return une valeur aléatoire entre 0 et 1
  */
-double Connection::poidsRandom(void)
+double ::Connection::poidsRandom(void)
 {
 	return rand()/(static_cast<double>(RAND_MAX) + 1.0);			//renvoie une valeur random entre 0.0 et 1.0
 }
@@ -160,7 +161,7 @@ double Connection::poidsRandom(void)
 /**
  *  Constructeur de neurone
  */
-Neurone::Neurone(unsigned parNbOutput, unsigned parMyIndex)
+::Neurone::Neurone(unsigned parNbOutput, unsigned parMyIndex)
 {
 	for (unsigned c = 0; c < parNbOutput; ++c) {					//Pour toutes les sorties du neurone
 		outputPoids_.push_back(Connection());						//on creer une connection
@@ -177,7 +178,7 @@ Neurone::Neurone(unsigned parNbOutput, unsigned parMyIndex)
  *  output=f(sum(i*w))
  *  @param parPrevLayer la couche d'avant (qui constitue les entrees)
  */
-void Neurone::feedForward(const Layer &parPrevLayer)
+void ::Neurone::feedForward(const Layer &parPrevLayer)
 {
 	double sum = 0.0;
 	
@@ -194,7 +195,7 @@ void Neurone::feedForward(const Layer &parPrevLayer)
  *  calcul du gradient de sortie
  *  @param parTargetVal valeur de sortie attendu
  */
-void Neurone::calcOutputGradients(double parTargetVal)
+void ::Neurone::calcOutputGradients(double parTargetVal)
 {
 	double delta = parTargetVal - outputValue_;						//ecart entre la theorie et la sortie
 	gradient_ = delta * Neurone::fctTransfertDerivee(outputValue_);	//on applique la derivee dela fct de transfert
@@ -205,7 +206,7 @@ void Neurone::calcOutputGradients(double parTargetVal)
  *  calcul du gradient des couches intermediaires
  *  @param parNextLayer ref vers la couche superieur
  */
-void Neurone::calcHiddenGradients(const Layer &parNextLayer)
+void ::Neurone::calcHiddenGradients(const Layer &parNextLayer)
 {
 	//dow : derivative output weight
 	double dow = sumDOW(parNextLayer);								//on calcul le gradient des sorties en fonction des poids
@@ -217,7 +218,7 @@ void Neurone::calcHiddenGradients(const Layer &parNextLayer)
  *  mise à jour des poids
  *  @param parPrevLayer ref sur la couche d'avant
  */
-void Neurone::updateInputsPoids(Layer & parPrevLayer)
+void ::Neurone::updateInputsPoids(Layer & parPrevLayer)
 {
 	for (auto& n : parPrevLayer) {			//pour tout les neurones de la couches
 		Neurone &neurone = n;
@@ -236,13 +237,13 @@ void Neurone::updateInputsPoids(Layer & parPrevLayer)
  *  donne le tableau de connection du neurone
  *  @param parConnections le tableau de stockage
  */
-void Neurone::getConnectionsValues(Connections & parConnections) const
+void ::Neurone::getConnectionsValues(Connections & parConnections) const
 {
 	parConnections = outputPoids_;
 }
 
 //--------------------------------------
-void Neurone::setConnectionsValues(Connections &parConnections)
+void ::Neurone::setConnectionsValues(Connections &parConnections)
 {
 	outputPoids_ = parConnections;
 }
@@ -253,7 +254,7 @@ void Neurone::setConnectionsValues(Connections &parConnections)
  *  @param parSum valeur de la somme
  *  @return valeur de sortie
  */
-double Neurone::fctTransfert(double parSum)
+double ::Neurone::fctTransfert(double parSum)
 {
 	//std::cout << val << std::endl;
 	return tanh(LAMBDA * parSum);
@@ -263,7 +264,7 @@ double Neurone::fctTransfert(double parSum)
 /**
  *  derivee de la fonction de transfert
  */
-double Neurone::fctTransfertDerivee(double par)
+double ::Neurone::fctTransfertDerivee(double par)
 {
 	//2sech^2(2x)~2-8x^2 en 0
 	//return LAMBDA - par * par;
@@ -276,7 +277,7 @@ double Neurone::fctTransfertDerivee(double par)
  *  @param parNextLayer ref vers la couche supérieur
  *  @return somme des derivee de poids
  */
-double Neurone::sumDOW(const Layer &parNextLayer) const
+double ::Neurone::sumDOW(const Layer &parNextLayer) const
 {
 	double sum = 0.0;
 	for (unsigned n = 0; n < parNextLayer.size() - 1; ++n) {		//pour tout les neurones de la couche supérieur - bias
@@ -303,7 +304,7 @@ double Neurone::sumDOW(const Layer &parNextLayer) const
 /**
  *  Constructeur du reseau de neurone
  */
-Network::Network(const std::vector<unsigned> & parTopologie, const std::string & parSave)
+::Network::Network(const std::vector<unsigned> & parTopologie, const std::string & parSave)
 {
 	error_ = 0.0;
 	derniereMoyenneErreur_ = 0.0;
@@ -338,8 +339,9 @@ Network::Network(const std::vector<unsigned> & parTopologie, const std::string &
 }
 
 //--------------------------------------
-void Network::constructNetworkFromScratch(const std::vector<unsigned int> &parTopologie)
+void ::Network::constructNetworkFromScratch(const std::vector<unsigned int> &parTopologie)
 {
+	std::cout << "creation from scratch" << std::endl;
 	for (unsigned i = 0; i < parTopologie.size(); ++i) {			//pour toutes les couches
 		unsigned nbNeurone = parTopologie[i];						//nombre de neurone dans la couche
 		assert(nbNeurone > 0);										//si le nombre de neurone est 0, on arrete
@@ -359,13 +361,18 @@ void Network::constructNetworkFromScratch(const std::vector<unsigned int> &parTo
 
 //--------------------------------------
 //A finaliser !!!!!
-bool Network::constructNetworkFromFile(const std::string & parSave)
+bool ::Network::constructNetworkFromFile(const std::string & parSave)
 {
 	
 	std::vector<unsigned> topo;
-	inputFile_.setf(std::ifstream::in);
-	inputFile_.open(parSave);
-
+	inputFile_ = std::unique_ptr<std::ifstream>(new std::ifstream(parSave));
+	if (!(inputFile_->good())) {
+		std::cout << "fichier inexistant" << std::endl;
+		return 1;
+	}
+	inputFile_->setf(std::ifstream::in);
+	//inputFile_->open(parSave);
+	
 	if (!inputFile_) {
 		std::cerr << "probleme a l'ouverture du fichier" << std::endl;
 	}
@@ -378,7 +385,7 @@ bool Network::constructNetworkFromFile(const std::string & parSave)
 	std::string ligne;
 	std::string label;
 	
-	getline(inputFile_, ligne);
+	getline(*inputFile_, ligne);
 	std::stringstream ss(ligne);
 	
 	ss >> label;
@@ -407,11 +414,10 @@ bool Network::constructNetworkFromFile(const std::string & parSave)
 		unsigned nbOutput = (isLastLayer)? 0 : topo[i + 1];
 		
 		for (unsigned j = 0; j < (nbNeurone + 1); ++j) {
-			getline(inputFile_, ligne);
+			getline(*inputFile_, ligne);
 			ss.clear();
 			ss.str(ligne);
 			ss >> label;
-			std::cout << ss.str();
 			if (label.compare("neurone:") == 0) {
 				
 				ss.ignore();
@@ -425,12 +431,10 @@ bool Network::constructNetworkFromFile(const std::string & parSave)
 			Neurone& neur = newLayer.back();
 			
 			for (unsigned n = 0; n < nbOutput; ++n) {
-				getline(inputFile_, ligne);
+				getline(*inputFile_, ligne);
 				ss.clear();
 				ss.str(ligne);
-				std::cout << ss.str();
 				ss >> label;
-				std::cout << ss.str();
 				if (label.compare("connection:") == 0) {
 					
 					ss.ignore();
@@ -448,7 +452,7 @@ bool Network::constructNetworkFromFile(const std::string & parSave)
 		Neurone &biasNeurone = newLayer.back();
 		biasNeurone.setOutputValue(1.0);
 	}
-	inputFile_.close();
+	inputFile_->close();
 	return 0;
 }
 
