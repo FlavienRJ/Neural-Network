@@ -3,6 +3,7 @@
 
 //--------------------------------------
 #include "neural.hpp"
+#include "stock.hpp"
 
 //--------------------------------------
 class fChrono;
@@ -46,7 +47,7 @@ public:
 	void EndProgramme() const;
 	
 protected:
-	Network* myNet_;
+	std::unique_ptr<Network> myNet_;
 	
 	T_val inputVals_;
 	T_val targetVals_;
@@ -126,4 +127,27 @@ private:
 	
 };
 
+//--------------------------------------
+class ProgrammeFenetre
+{
+public:
+	ProgrammeFenetre();
+	void run();
+	
+private:
+	std::unique_ptr<fWindow> fen_;
+};
+
 #endif
+
+
+
+
+
+
+
+
+
+
+
+

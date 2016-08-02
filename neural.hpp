@@ -13,6 +13,7 @@
 #include <chrono>
 #include <algorithm>
 #include <thread>
+#include <memory>
 
 //#include <boost/iostreams/stream.hpp>
 
@@ -102,7 +103,7 @@ class Network
 public:
 	Network(const std::vector<unsigned> & parTopologie, const std::string & parSave = "");
 	void constructNetworkFromScratch(const std::vector<unsigned> & parTopologie);
-	void constructNetworkFromFile(const std::string & parSave);
+	bool constructNetworkFromFile(const std::string & parSave);
 	void feedForward(const T_val & parInputValues);
 	void backProp(const T_val & parTargetValues);
 	void getResults(T_val & parResultValues) const;

@@ -38,7 +38,7 @@ int main(const int argc,const char * argv[])
 	
 	std::cout << std::setprecision(2);
 	
-	T_Entrainement entrainement = EXEMPLE;
+	T_Entrainement entrainement = FENETRE;
 	
 	switch (entrainement) {
 		case BINAIRE:
@@ -79,6 +79,12 @@ int main(const int argc,const char * argv[])
 			prog.Entrainement();
 			prog.Prediction();
 			prog.EndProgramme();
+			break;
+		}
+		case FENETRE:
+		{
+			ProgrammeFenetre prog;
+			prog.run();
 			break;
 		}
 		default:

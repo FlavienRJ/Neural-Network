@@ -317,7 +317,8 @@ Network::Network(const std::vector<unsigned> & parTopologie, const std::string &
 	}
 	else
 	{
-		constructNetworkFromFile(parSave);
+		if(constructNetworkFromFile(parSave))
+			constructNetworkFromScratch(parTopologie);
 	}
 	//
 	
@@ -358,7 +359,7 @@ void Network::constructNetworkFromScratch(const std::vector<unsigned int> &parTo
 
 //--------------------------------------
 //A finaliser !!!!!
-void Network::constructNetworkFromFile(const std::string & parSave)
+bool Network::constructNetworkFromFile(const std::string & parSave)
 {
 	
 	std::vector<unsigned> topo;
@@ -384,7 +385,7 @@ void Network::constructNetworkFromFile(const std::string & parSave)
 	
 	if(label.compare("topologie:") != 0)
 	{
-		return;
+		return 1;
 	}
 	
 	unsigned n;
@@ -396,6 +397,9 @@ void Network::constructNetworkFromFile(const std::string & parSave)
 	
 	for (unsigned i = 0; i < topo.size(); ++i) {
 		unsigned nbNeurone = topo[i];
+		if (nbNeurone == 0) {
+			return 1;
+		}
 		assert(nbNeurone > 0);
 		layers_.push_back(Layer());
 		Layer &newLayer = layers_.back();
@@ -445,6 +449,7 @@ void Network::constructNetworkFromFile(const std::string & parSave)
 		biasNeurone.setOutputValue(1.0);
 	}
 	inputFile_.close();
+	return 0;
 }
 
 //--------------------------------------

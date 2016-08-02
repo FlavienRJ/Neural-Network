@@ -11,7 +11,8 @@ enum T_Entrainement
 	EXEMPLE,
 	MULTIPLE2,
 	NOMBRE,
-	XOR
+	XOR,
+	FENETRE
 };
 
 #endif

@@ -39,6 +39,7 @@ Programme::Programme(const int argc,const char * argv[])
 //--------------------------------------
 void Programme::EndProgramme() const
 {
+	myNet_->printNeuroneConnectionsPoids();
 	myNet_->saveInFile();
 }
 
@@ -57,7 +58,7 @@ ProgrammeBinaire::ProgrammeBinaire(const int argc,const char * argv[]) : Program
 {
 	trainingData_ = new ReadTrainData("exemples/binaire.txt");
 	trainingData_->getTopologie(topologie_);
-	myNet_ = new Network(topologie_);
+	myNet_ = std::unique_ptr<Network>(new Network(topologie_));
 	myNet_->setNbMesure(trainingData_->getNumberTrain()/10);
 	
 }
@@ -104,7 +105,7 @@ ProgrammeExemple::ProgrammeExemple(const int argc,const char * argv[]) : Program
 {
 	trainingData_ = new ReadTrainData("exemples/exemple.txt");
 	trainingData_->getTopologie(topologie_);
-	myNet_ = new Network(topologie_,"save.txt");
+	myNet_ = std::unique_ptr<Network>(new Network(topologie_,"save.txt"));
 	myNet_->setNbMesure(trainingData_->getNumberTrain()/10);
 	
 }
@@ -151,7 +152,7 @@ ProgrammeMultiple2::ProgrammeMultiple2(const int argc,const char * argv[]) : Pro
 {
 	trainingData_ = new ReadTrainData("exemples/multiple2.txt");
 	trainingData_->getTopologie(topologie_);
-	myNet_ = new Network(topologie_);
+	myNet_ = std::unique_ptr<Network>(new Network(topologie_));
 	myNet_->setNbMesure(trainingData_->getNumberTrain()/10);
 	
 }
@@ -198,7 +199,7 @@ ProgrammeNombre::ProgrammeNombre(const int argc,const char * argv[]) : Programme
 {
 	trainingData_ = new ReadTrainData("exemples/nombre.txt");
 	trainingData_->getTopologie(topologie_);
-	myNet_ = new Network(topologie_);
+	myNet_ = std::unique_ptr<Network>(new Network(topologie_));
 	myNet_->setNbMesure(trainingData_->getNumberTrain()/10);
 	
 }
@@ -245,7 +246,7 @@ ProgrammeXor::ProgrammeXor(const int argc,const char * argv[]) : Programme(argc,
 {
 	trainingData_ = new ReadTrainData("exemples/xor.txt");
 	trainingData_->getTopologie(topologie_);
-	myNet_ = new Network(topologie_);
+	myNet_ = std::unique_ptr<Network>(new Network(topologie_));
 	myNet_->setNbMesure(trainingData_->getNumberTrain()/10);
 	
 }
@@ -277,6 +278,27 @@ void ProgrammeXor::Prediction()
 	
 }
 
+
+
+
+
+
+
+
+
+
+
+//--------------------------------------
+ProgrammeFenetre::ProgrammeFenetre()
+{
+	fen_ = std::unique_ptr<fWindow>(new fWindow(1500,750));
+}
+
+//--------------------------------------
+void ProgrammeFenetre::run()
+{
+	fen_->run();
+}
 
 
 
