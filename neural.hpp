@@ -25,8 +25,11 @@ namespace ia {
 	class Connection;
 	class Neurone;
 	class Network;
+	class Cellule;
+	class Systeme;
 }
 
+using Text			= std::string;
 using Layer			= std::vector<ia::Neurone>;
 using T_val			= std::vector<double>;
 using Connections	= std::vector<ia::Connection>;
@@ -46,7 +49,7 @@ namespace ia {
 	class ReadTrainData
 	{
 	public:
-		ReadTrainData(const std::string parFile);
+		ReadTrainData(const Text parFile);
 		bool isEOF(void) { return trainingDataFile_.eof();}
 		void getTopologie(std::vector<unsigned> & parTopologie);
 		unsigned getNextInputs(T_val & parInputVal);
@@ -90,17 +93,24 @@ namespace ia {
 		void updateInputsPoids(Layer & parPrevLayer);
 		void getConnectionsValues(Connections & parConnections) const;
 		void setConnectionsValues(Connections & parConnections);
-		double ETA;
-		double ALPHA;
+		inline double getTauxEntrainement(void) const { return ETA;}
+		inline void setTauxEntrainement(double par) { ETA = par;}
+		inline double getMomentum(void) const { return ALPHA;}
+		inline void setMomentum(double par) { ALPHA = par;}
+		
 		
 	private:
+
 		static double fctTransfert(double parSum);
 		static double fctTransfertDerivee(double par);
 		double sumDOW(const Layer & parNextLayer) const;
+		
 		double outputValue_;
 		Connections outputPoids_;
 		unsigned myIndex_;
 		double gradient_;
+		double ETA;
+		double ALPHA;
 		
 	};
 	
@@ -109,9 +119,11 @@ namespace ia {
 	class Network
 	{
 	public:
-		Network(const std::vector<unsigned> & parTopologie, const std::string & parSave = "");
+		Network(const unsigned parNbInput, const unsigned parNbOutput);
+		Network(const std::vector<unsigned> & parTopologie, const Text & parSave = "");
 		void constructNetworkFromScratch(const std::vector<unsigned> & parTopologie);
-		bool constructNetworkFromFile(const std::string & parSave);
+		bool constructNetworkFromFile(const Text & parSave);
+		void constructNetworkRandom(const unsigned parNbInput, const unsigned parNbOutput);
 		void feedForward(const T_val & parInputValues);
 		void backProp(const T_val & parTargetValues);
 		void getResults(T_val & parResultValues) const;
@@ -128,7 +140,7 @@ namespace ia {
 		
 	private:
 		Topologie layers_;
-		unsigned long nbLayers;
+		unsigned long nbLayers_;
 		double error_;
 		double derniereMoyenneErreur_;
 		int nombreMesure_;
@@ -137,5 +149,41 @@ namespace ia {
 		
 	};
 	
+	//--------------------------------------
+	/// classe
+	class Cellule
+	{
+	public:
+		Cellule();
+		
+	private:
+		
+		
+	};
+	
+	//--------------------------------------
+	/// classe
+	class Systeme
+	{
+	public:
+		Systeme(unsigned parNbCell = 10);
+		void trainAllSysteme();
+		Network& getBestNetwork();
+		
+	private:
+		unsigned nbCellule_;
+		std::vector<Network> tabCell_;
+		std::unique_ptr<ReadTrainData> trainingData_;
+	};
+	
+	
 }
 #endif
+
+
+
+
+
+
+
+

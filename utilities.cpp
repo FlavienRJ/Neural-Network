@@ -58,7 +58,8 @@ ProgrammeBinaire::ProgrammeBinaire(const int argc,const char * argv[]) : Program
 {
 	trainingData_ = new ia::ReadTrainData("exemples/binaire.txt");
 	trainingData_->getTopologie(topologie_);
-	myNet_ = std::unique_ptr<ia::Network>(new ia::Network(topologie_));
+	myNet_ = std::unique_ptr<ia::Network>(new ia::Network(topologie_,"save.txt"
+														  ));
 	myNet_->setNbMesure(trainingData_->getNumberTrain()/10);
 	
 }
@@ -78,7 +79,16 @@ void ProgrammeBinaire::Prediction()
 	else
 	{
 		predictValInput_.push_back(1.0);
-		predictValInput_.push_back(0.2);
+		predictValInput_.push_back(1.0);
+		predictValInput_.push_back(1.0);
+		
+		predictValInput_.push_back(1.0);
+		predictValInput_.push_back(1.0);
+		predictValInput_.push_back(1.0);
+		
+		predictValInput_.push_back(1.0);
+		predictValInput_.push_back(1.0);
+		predictValInput_.push_back(1.0);
 	}
 	
 	requestPredict(predictValInput_, predictValResult_, *myNet_);
@@ -153,6 +163,7 @@ ProgrammeMultiple2::ProgrammeMultiple2(const int argc,const char * argv[]) : Pro
 	trainingData_ = new ia::ReadTrainData("exemples/multiple2.txt");
 	trainingData_->getTopologie(topologie_);
 	myNet_ = std::unique_ptr<ia::Network>(new ia::Network(topologie_));
+	//myNet_ = std::unique_ptr<ia::Network>(new ia::Network(topologie_,"save.txt"));
 	myNet_->setNbMesure(trainingData_->getNumberTrain()/10);
 	
 }
@@ -171,16 +182,12 @@ void ProgrammeMultiple2::Prediction()
 	}
 	else
 	{
-		predictValInput_.push_back(1.0);
-		predictValInput_.push_back(0.2);
+		predictValInput_.push_back(0.0);
 	}
 	
 	requestPredict(predictValInput_, predictValResult_, *myNet_);
 	predictValResult_.pop_back();
 	printVector(predictValResult_);
-	T_val percent;
-	percentOutputNeurone(predictValResult_, percent);
-	printVector(percent);
 	
 }
 
@@ -219,7 +226,14 @@ void ProgrammeNombre::Prediction()
 	else
 	{
 		predictValInput_.push_back(1.0);
-		predictValInput_.push_back(0.2);
+		predictValInput_.push_back(1.0);
+		predictValInput_.push_back(1.0);
+		predictValInput_.push_back(1.0);
+		predictValInput_.push_back(1.0);
+		predictValInput_.push_back(1.0);
+		predictValInput_.push_back(1.0);
+		predictValInput_.push_back(1.0);
+		predictValInput_.push_back(1.0);
 	}
 	
 	requestPredict(predictValInput_, predictValResult_, *myNet_);
@@ -266,7 +280,7 @@ void ProgrammeXor::Prediction()
 	else
 	{
 		predictValInput_.push_back(1.0);
-		predictValInput_.push_back(0.2);
+		predictValInput_.push_back(1.0);
 	}
 	
 	requestPredict(predictValInput_, predictValResult_, *myNet_);
@@ -316,7 +330,7 @@ void ProgrammeFenetre::run()
  *  @param parVec  le vector à afficher
  *  @param parText le texte (optionnel)
  */
-void printVector(const std::vector<double> & parVec, const std::string parText)
+void printVector(const std::vector<double> & parVec, const Text parText)
 {
 	std::cout << parText << std::endl;
 	for (auto i : parVec) {

@@ -9,7 +9,6 @@
 
 //--------------------------------------
 //TODO
-//-IMPLEMENTER LA FONCTION DE  CONSTRUCTION DE RESEAU NEURONAL A PARTIR DU FICHIER
 //-implementation d'une nouvelle classe Creature pour :
 //-AJOUT algorithme d'evolution genetique
 //	->dans les genes : la topologie du réseau, les constantes eta/alpha, poids ?
@@ -17,6 +16,7 @@
 //-Lorsque peu de donnée, les répéter (3->30)
 //-Convolution pour les images ?
 //- travailler sur sfml pour tracer des graphiques à partir des tableau de donnée
+//-Implementation des différents widget SFML
 
 //DONE
 //+Fonction d'affichage des tableau
@@ -25,6 +25,7 @@
 //+uniformiser le formatage des fichiers de donnee
 //+ajout de la sauvegarde des parametres du reseau à la fin de l'entrainement
 //+creation de classe pour les différents type d'entrainement
+//+lecture du fichier de sauvegarde pour la construction de reseau neuronal
 
 //--------------------------------------
 /**
@@ -38,7 +39,7 @@ int main(const int argc,const char * argv[])
 	
 	std::cout << std::setprecision(2);
 	
-	T_Entrainement entrainement = EXEMPLE;
+	T_Entrainement entrainement = BINAIRE;
 	
 	switch (entrainement) {
 		case BINAIRE:

@@ -7,7 +7,7 @@ using namespace ia;
 /**
  *  Constructeur de la classe d'entrainement
  */
-::ReadTrainData::ReadTrainData(const std::string parFile)
+::ReadTrainData::ReadTrainData(const Text parFile)
 {
 	trainingDataFile_.open(parFile.c_str());						//ouverture du fichier d'entrainement
 	calcNumberTrain();
@@ -20,8 +20,8 @@ using namespace ia;
  */
 void ::ReadTrainData::getTopologie(std::vector<unsigned> &parTopologie)
 {
-	std::string ligne;
-	std::string label;
+	Text ligne;
+	Text label;
 	
 	getline(trainingDataFile_, ligne);								//lecture de la premiere ligne du fichier
 	std::stringstream ss(ligne);									//on stocke la ligne de le stringstream
@@ -47,8 +47,8 @@ unsigned ::ReadTrainData::getNextInputs(T_val &parInputVal)
 	
 	parInputVal.clear();											//on vide la liste des inputs
 	
-	std::string ligne;
-	std::string label;
+	Text ligne;
+	Text label;
 	
 	getline(trainingDataFile_, ligne);
 	std::stringstream ss(ligne);
@@ -74,8 +74,8 @@ unsigned ReadTrainData::getTargetOutputs(T_val &parTargetOutputVals)	//même pri
 {
 	parTargetOutputVals.clear();
 	
-	std::string ligne;
-	std::string label;
+	Text ligne;
+	Text label;
 	
 	getline(trainingDataFile_, ligne);
 	std::stringstream ss(ligne);
@@ -94,7 +94,7 @@ unsigned ReadTrainData::getTargetOutputs(T_val &parTargetOutputVals)	//même pri
 //--------------------------------------
 void ReadTrainData::calcNumberTrain()
 {
-	std::string ligne;
+	Text ligne;
 	unsigned i = 0;
 	for (i = 0; std::getline(trainingDataFile_, ligne); i++) {
 		;
@@ -304,14 +304,27 @@ double ::Neurone::sumDOW(const Layer &parNextLayer) const
 /**
  *  Constructeur du reseau de neurone
  */
-::Network::Network(const std::vector<unsigned> & parTopologie, const std::string & parSave)
+::Network::Network(const unsigned int parNbInput, const unsigned int parNbOutput)
+{
+	error_ = 0.0;
+	derniereMoyenneErreur_ = 0.0;
+	nombreMesure_ = NB_MESURE;
+	constructNetworkRandom(parNbInput,parNbOutput);
+	nbLayers_ = layers_.size();
+}
+
+//--------------------------------------
+/**
+ *  Constructeur du reseau de neurone
+ */
+::Network::Network(const std::vector<unsigned> & parTopologie, const Text & parSave)
 {
 	error_ = 0.0;
 	derniereMoyenneErreur_ = 0.0;
 	nombreMesure_ = NB_MESURE;
 	
 	assert(!parTopologie.empty());									//si la topologie est vide, on arrete
-	nbLayers = parTopologie.size();
+	nbLayers_ = parTopologie.size();
 	
 	if (parSave.compare("") == 0) {
 		constructNetworkFromScratch(parTopologie);
@@ -360,8 +373,7 @@ void ::Network::constructNetworkFromScratch(const std::vector<unsigned int> &par
 }
 
 //--------------------------------------
-//A finaliser !!!!!
-bool ::Network::constructNetworkFromFile(const std::string & parSave)
+bool ::Network::constructNetworkFromFile(const Text & parSave)
 {
 	
 	std::vector<unsigned> topo;
@@ -378,12 +390,12 @@ bool ::Network::constructNetworkFromFile(const std::string & parSave)
 	}
 	
 	Connections cons;
-	double x;
-	double y;
+	double x = 0;
+	double y = 0;
 	double a = 0;
 
-	std::string ligne;
-	std::string label;
+	Text ligne;
+	Text label;
 	
 	getline(*inputFile_, ligne);
 	std::stringstream ss(ligne);
@@ -429,6 +441,8 @@ bool ::Network::constructNetworkFromFile(const std::string & parSave)
 			}
 			newLayer.push_back(Neurone(nbOutput, j));
 			Neurone& neur = newLayer.back();
+			neur.setTauxEntrainement(x);
+			neur.setMomentum(y);
 			
 			for (unsigned n = 0; n < nbOutput; ++n) {
 				getline(*inputFile_, ligne);
@@ -453,7 +467,20 @@ bool ::Network::constructNetworkFromFile(const std::string & parSave)
 		biasNeurone.setOutputValue(1.0);
 	}
 	inputFile_->close();
+	std::cout << "creation from file" << std::endl;
 	return 0;
+}
+
+//--------------------------------------
+void Network::constructNetworkRandom(const unsigned parNbInput, const unsigned parNbOutput)
+{
+	std::vector<unsigned> topo;
+	topo.push_back(parNbInput);
+	for (unsigned n = 0; n < (std::rand() % 3); ++n) {
+			topo.push_back(parNbInput + ( std::rand() % ( 2*parNbInput - parNbInput + 1 ) ));
+	}
+	topo.push_back(parNbOutput);
+	constructNetworkFromScratch(topo);
 }
 
 //--------------------------------------
@@ -610,7 +637,7 @@ void Network::saveInFile()
 	for (unsigned i = 0; i < layers_.size() - 1; ++i) {
 		for (unsigned j = 0; j < layers_[i].size(); ++j) {
 			neur = &layers_[i][j];
-			outputFile_ << "neurone: " << i << " " << j << " " << neur->ETA << " " << neur->ALPHA << std::endl;
+			outputFile_ << "neurone: " << i << " " << j << " " << neur->getTauxEntrainement() << " " << neur->getMomentum() << std::endl;
 			neur->getConnectionsValues(cons);
 			for (unsigned k = 0; k < cons.size(); ++k) {
 				outputFile_ << "connection: " << i + 1 << " " << k << " " << cons[k].poids_ << std::endl;
@@ -620,6 +647,27 @@ void Network::saveInFile()
 	outputFile_.close();
 }
 
+//--------------------------------------
+Cellule::Cellule()
+{
+	
+}
+
+//--------------------------------------
+Systeme::Systeme(unsigned parNbCell)
+{
+	nbCellule_ = parNbCell;
+	std::vector<unsigned> topo;
+	trainingData_ = std::unique_ptr<ReadTrainData>(new ia::ReadTrainData("exemples/binaire.txt"));
+	trainingData_->getTopologie(topo);
+	for (unsigned n = 0; n < nbCellule_; ++n) {
+		tabCell_.push_back(Network(topo.front(),topo.back()));
+	}
+}
+
+//--------------------------------------
+
+//--------------------------------------
 
 
 

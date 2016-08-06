@@ -15,7 +15,7 @@ class ProgrammeNombre;
 class ProgrammeXor;
 
 //--------------------------------------
-void printVector(const std::vector<double> & parVec, const std::string parText  = "");
+void printVector(const std::vector<double> & parVec, const Text parText  = "");
 void requestPredict(T_val & parPredictValInput, T_val & parPredictValResult, ia::Network & parNet);
 void getArgument(const int argc,const char** argv, T_val & parArg);
 void training(ia::Network& parNet, ia::ReadTrainData& parTrainData, std::vector<unsigned>& parTopologie,T_val& parInputVals, T_val& parTargetVals, T_val& parResultVals);
