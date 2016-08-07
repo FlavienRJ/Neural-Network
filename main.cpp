@@ -9,7 +9,6 @@
 
 //--------------------------------------
 //TODO
-//-implementation d'une nouvelle classe Creature pour :
 //-AJOUT algorithme d'evolution genetique
 //	->dans les genes : la topologie du réseau, les constantes eta/alpha, poids ?
 //-ajout d'une base de donnee dans laquelle on stock les resultats jugee bon, pour encore augmenter la taille du fichier de test
@@ -34,7 +33,7 @@
  */
 int main(const int argc,const char * argv[])
 {
-	std::srand(std::time(NULL));
+	std::srand(static_cast<unsigned int>(std::time(NULL)));
 	
 	fChrono duree;
 	duree.start();
