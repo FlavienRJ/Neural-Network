@@ -34,12 +34,14 @@
  */
 int main(const int argc,const char * argv[])
 {
+	std::srand(std::time(NULL));
+	
 	fChrono duree;
 	duree.start();
 	
 	std::cout << std::setprecision(2);
 	
-	T_Entrainement entrainement = BINAIRE;
+	T_Entrainement entrainement = FENETRE;
 	
 	switch (entrainement) {
 		case BINAIRE:

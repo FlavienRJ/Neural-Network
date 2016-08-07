@@ -43,8 +43,13 @@ private:
 	
 	std::unique_ptr<sf::RenderWindow> myWin_;
 	sf::Event e_;
+	Text title_;
 	
-	std::unique_ptr<fButton> button1_;
+	std::unique_ptr<fButton>	button1_;
+	std::unique_ptr<fChart>		chart1_;
+	
+	std::vector<double> testVector;
+	std::vector<sf::Vector2u> testFormatedData;
 	
 };
 
@@ -53,8 +58,18 @@ class fChart : public fWidget
 {
 public:
 	fChart();
+	void setPosition(sf::Vector2f& parPos);
+	sf::Vector2f getPosition() const;
+	void setSize(sf::Vector2f& parSize);
+	sf::Vector2f getSize() const;
+	sf::RectangleShape& renderBackGround();
+	std::vector<sf::Vector2u>& renderData(std::vector<double> & parData);
 	
 private:
+	sf::RectangleShape			rect_;
+	sf::Vector2u				pos_;
+	std::vector<double>			data_;
+	std::vector<sf::Vector2u>	formatedData_;
 	
 };
 

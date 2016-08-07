@@ -1,5 +1,6 @@
 //--------------------------------------
 #include "neural.hpp"
+#include "utilities.hpp"
 
 using namespace ia;
 //-----------TrainData------------------
@@ -325,6 +326,7 @@ double ::Neurone::sumDOW(const Layer &parNextLayer) const
 	
 	assert(!parTopologie.empty());									//si la topologie est vide, on arrete
 	nbLayers_ = parTopologie.size();
+	topologie_ = parTopologie;
 	
 	if (parSave.compare("") == 0) {
 		constructNetworkFromScratch(parTopologie);
@@ -474,13 +476,12 @@ bool ::Network::constructNetworkFromFile(const Text & parSave)
 //--------------------------------------
 void Network::constructNetworkRandom(const unsigned parNbInput, const unsigned parNbOutput)
 {
-	std::vector<unsigned> topo;
-	topo.push_back(parNbInput);
+	topologie_.push_back(parNbInput);
 	for (unsigned n = 0; n < (std::rand() % 3); ++n) {
-			topo.push_back(parNbInput + ( std::rand() % ( 2*parNbInput - parNbInput + 1 ) ));
+			topologie_.push_back(parNbInput + ( std::rand() % ( 2*parNbInput - parNbInput + 1 ) ));
 	}
-	topo.push_back(parNbOutput);
-	constructNetworkFromScratch(topo);
+	topologie_.push_back(parNbOutput);
+	constructNetworkFromScratch(topologie_);
 }
 
 //--------------------------------------
@@ -612,6 +613,12 @@ void Network::getNetworkTopologie(Topologie &parTopologie) const
 }
 
 //--------------------------------------
+void Network::getTopologie(std::vector<unsigned> & parTopo) const
+{
+	parTopo = topologie_;
+}
+
+//--------------------------------------
 void Network::setNbMesure(int par)
 {
 	nombreMesure_ = par;
@@ -666,6 +673,29 @@ Systeme::Systeme(unsigned parNbCell)
 }
 
 //--------------------------------------
+void Systeme::trainAllSysteme(T_val& parInputVals, T_val& parTargetVals, T_val& parResultVals)
+{
+//	std::vector<unsigned> topo;
+//	std::vector<Network> tmp;
+//	
+//	//tant que l'erreur est importante
+//	while (*std::min_element(erreurNet_.begin(), erreurNet_.end()) > ERREUR) {
+//		//on lance l'entrainement de toutes les cellules
+//		for (unsigned n = 0; n < nbCellule_; ++n) {
+//			tabCell_[n].getTopologie(topo);
+//			training(tabCell_[n], *trainingData_,topo, parInputVals, parTargetVals, parResultVals);
+//			erreurNet_.push_back(tabCell_[n].getErreurMoyenne());
+//		}
+//		
+//		tmp = tabCell_;
+//		//on choisie les meilleurs
+//		//auto it = std::min_element(erreurNet_.begin(), erreurNet_.end());
+//		//unsigned i = std::distance(it, erreurNet_.begin());
+//	
+//	}
+
+	
+}
 
 //--------------------------------------
 

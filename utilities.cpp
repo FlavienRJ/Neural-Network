@@ -305,7 +305,7 @@ void ProgrammeXor::Prediction()
 //--------------------------------------
 ProgrammeFenetre::ProgrammeFenetre()
 {
-	fen_ = std::unique_ptr<fWindow>(new fWindow(1500,750));
+	fen_ = std::unique_ptr<fWindow>(new fWindow(1500,1250));
 }
 
 //--------------------------------------

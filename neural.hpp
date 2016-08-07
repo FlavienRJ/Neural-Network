@@ -134,12 +134,15 @@ namespace ia {
 		T_val predict(const T_val & parVal);
 		void printNeuroneConnectionsPoids(void) const;
 		void getNetworkTopologie(Topologie & parTopologie) const;
+		void getTopologie(std::vector<unsigned> & parTopo) const;
 		void setNbMesure(int par);
 		unsigned getNbMesure() const { return nombreMesure_;}
 		void saveInFile();
 		
+		
 	private:
 		Topologie layers_;
+		std::vector<unsigned> topologie_;
 		unsigned long nbLayers_;
 		double error_;
 		double derniereMoyenneErreur_;
@@ -167,13 +170,14 @@ namespace ia {
 	{
 	public:
 		Systeme(unsigned parNbCell = 10);
-		void trainAllSysteme();
+		void trainAllSysteme(T_val& parInputVals, T_val& parTargetVals, T_val& parResultVals);
 		Network& getBestNetwork();
 		
 	private:
-		unsigned nbCellule_;
-		std::vector<Network> tabCell_;
-		std::unique_ptr<ReadTrainData> trainingData_;
+		unsigned						nbCellule_;
+		std::vector<Network>			tabCell_;
+		std::unique_ptr<ReadTrainData>	trainingData_;
+		std::vector<unsigned>			erreurNet_;
 	};
 	
 	
